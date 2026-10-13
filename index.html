@@ -67,8 +67,95 @@
     .cover-kicker { margin: 0 0 13px; color: #ead0df; font-size: .68rem; font-weight: 600; letter-spacing: .29em; text-transform: uppercase; }
     .cover-title { margin: 0; color: #fff5e9; font: 400 clamp(2.1rem, 6vw, 4.4rem)/1.06 Georgia, "Times New Roman", serif; letter-spacing: -.04em; text-wrap: balance; }
     .cover-copy { margin: 16px 0 27px; color: rgba(255, 242, 231, .76); font: normal clamp(.96rem, 2vw, 1.12rem) "Segoe UI", Arial, sans-serif; }
-    .cover-button { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: 12px; padding: 0 25px; border: 1px solid rgba(255, 230, 220, .54); border-radius: 999px; color: #fff8f1; background: linear-gradient(110deg, rgba(233, 165, 198, .27), rgba(240, 199, 164, .17)); box-shadow: 0 10px 34px rgba(11, 8, 23, .24), inset 0 0 18px rgba(255,255,255,.04); font-size: .92rem; letter-spacing: .03em; backdrop-filter: blur(10px); }
+    .cover-button {
+      display: inline-flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 25px;
+      border: 1px solid rgba(255, 230, 220, .54);
+      border-radius: 999px;
+      color: #fff8f1;
+      background: linear-gradient(110deg, rgba(233, 165, 198, .27), rgba(240, 199, 164, .17));
+      box-shadow: 0 10px 34px rgba(11, 8, 23, .24), inset 0 0 18px rgba(255,255,255,.04);
+      font-size: .92rem;
+      letter-spacing: .03em;
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+      cursor: pointer;
+      user-select: none;
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .cover-button:hover {
+      background: linear-gradient(110deg, rgba(233, 165, 198, .38), rgba(240, 199, 164, .28));
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(11, 8, 23, .32), inset 0 0 18px rgba(255,255,255,.08);
+    }
+    .cover-button:active {
+      transform: translateY(1px);
+    }
+    .cover-button:focus-visible {
+      outline: 2px solid #ffd8dc;
+      outline-offset: 3px;
+    }
     .cover-heart { color: #ed405b; font-size: 1.15em; line-height: 1; }
+
+    .cover-audio-pill {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      z-index: 45;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 230, 220, .35);
+      border-radius: 999px;
+      color: rgba(255, 245, 233, .9);
+      background: rgba(23, 18, 38, .62);
+      box-shadow: 0 8px 24px rgba(11, 8, 23, .25);
+      backdrop-filter: blur(8px);
+      font-family: inherit;
+      font-size: .82rem;
+      letter-spacing: .02em;
+      cursor: pointer;
+      pointer-events: auto;
+      user-select: none;
+      transition: all .25s ease;
+      appearance: none;
+      animation: pill-pulse 2.5s infinite;
+    }
+    .cover-audio-pill:hover {
+      background: rgba(37, 25, 54, .85);
+      border-color: rgba(255, 230, 220, .6);
+      transform: scale(1.04);
+    }
+    .cover-audio-pill .audio-pill-icon {
+      font-size: .95rem;
+      display: inline-block;
+      color: #ffd8dc;
+      transition: transform .2s ease;
+    }
+    .cover-audio-pill.is-playing {
+      animation: none;
+      border-color: rgba(255, 228, 173, .45);
+      background: rgba(37, 25, 54, .75);
+    }
+    .cover-audio-pill.is-playing .audio-pill-icon {
+      color: #ffe4ad;
+      animation: music-note-beat 1.8s ease-in-out infinite;
+    }
+    @keyframes pill-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 216, 220, .4), 0 8px 24px rgba(11, 8, 23, .25); }
+      50% { box-shadow: 0 0 0 6px rgba(255, 216, 220, 0), 0 8px 24px rgba(11, 8, 23, .25); }
+    }
+    @keyframes music-note-beat {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.18) rotate(-8deg); }
+      75% { transform: scale(1.12) rotate(8deg); }
+    }
 
     .svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
@@ -526,6 +613,7 @@
     @keyframes memory-drift { 0% { opacity: .2; transform: translateY(12px) rotate(-7deg) scale(.78); } 55% { opacity: 1; transform: translateY(-5px) rotate(4deg) scale(1.04); } 100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); } }
 
     @media (max-width: 650px) {
+      .cover-audio-pill { top: 16px; right: 16px; padding: 0 12px; font-size: .76rem; min-height: 34px; }
       .garden-heading { top: 7vh; }
       .garden-heading .eyebrow { font-size: .58rem; letter-spacing: .22em; }
       .garden-heading p:last-child { max-width: 280px; margin: 12px auto 0; }
@@ -627,6 +715,10 @@
 
   <details class="garden-gate" id="flowerGarden">
     <summary class="garden-cover">
+      <button class="cover-audio-pill" id="coverAudioPill" type="button" aria-label="Bật nhạc bìa">
+        <span class="audio-pill-icon" aria-hidden="true">♫</span>
+        <span class="audio-pill-text">Chạm để bật nhạc</span>
+      </button>
       <div class="cover-card">
         <svg class="cover-flower" viewBox="0 0 100 100" aria-hidden="true">
           <g fill="#f5a6c2">
@@ -640,7 +732,7 @@
         <p class="cover-kicker">GỬI TẶNG IU MỘT VƯỜN HOA</p>
         <h1 class="cover-title">Không chỉ là đóa hoa<br>mà cả 1 khu vườn</h1>
         <p class="cover-copy">Iu nhấn cái nút ở dưới nhá.</p>
-        <span class="cover-button">Cái nút này này <span class="cover-heart" aria-hidden="true">♥</span></span>
+        <span class="cover-button" role="button" tabindex="0">Cái nút này này <span class="cover-heart" aria-hidden="true">♥</span></span>
       </div>
     </summary>
 
@@ -850,6 +942,8 @@
       const messageLetter = document.getElementById("messageLetter");
       const flowerGarden = document.getElementById("flowerGarden");
       const gardenCover = document.querySelector(".garden-cover");
+      const coverAudioPill = document.getElementById("coverAudioPill");
+      const coverButton = document.querySelector(".cover-button");
       const letterPageAnchor = document.getElementById("letterPage");
       const letterLink = document.querySelector('.continue-link[href="#letterPage"]');
       const gardenBackLink = document.querySelector('.letter-back[href="#gardenPage"]');
@@ -879,16 +973,46 @@
       let letterTrackIndex = 0;
       let playingTrackIndex = -1;
       let coverFadeFrame = 0;
+      let userPausedCoverMusic = false;
+
+      function updateCoverMusicUI() {
+        if (!coverAudioPill) return;
+        const isPlaying = !coverMusic.paused;
+        coverAudioPill.classList.toggle("is-playing", isPlaying);
+        const textSpan = coverAudioPill.querySelector(".audio-pill-text");
+        if (textSpan) {
+          textSpan.textContent = isPlaying ? "Đang phát nhạc ♫" : "Chạm để bật nhạc";
+        }
+        coverAudioPill.setAttribute("aria-label", isPlaying ? "Tạm dừng nhạc bìa" : "Bật nhạc bìa");
+      }
+      coverMusic.addEventListener("play", updateCoverMusicUI);
+      coverMusic.addEventListener("pause", updateCoverMusicUI);
 
       function startCoverMusic() {
         if (!soundEnabled || flowerGarden?.open || isLetterScreen()) return;
+        userPausedCoverMusic = false;
         if (coverFadeFrame) cancelAnimationFrame(coverFadeFrame);
         coverFadeFrame = 0;
         coverMusic.volume = 0.32;
-        if (!coverMusic.paused) return;
-        coverMusic.play().catch(() => {
+        if (!coverMusic.paused) {
+          updateCoverMusicUI();
+          return;
+        }
+        coverMusic.play().then(() => {
+          updateCoverMusicUI();
+        }).catch(() => {
           // Browsers that block autoplay retry when the viewer first taps or presses a key.
         });
+      }
+
+      function toggleCoverMusic() {
+        if (coverMusic.paused) {
+          userPausedCoverMusic = false;
+          startCoverMusic();
+        } else {
+          userPausedCoverMusic = true;
+          coverMusic.pause();
+        }
       }
 
       function fadeOutCoverMusic(duration = 0) {
@@ -1167,7 +1291,31 @@
         }
       }
 
-      gardenCover?.addEventListener("click", () => {
+      coverAudioPill?.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleCoverMusic();
+      });
+
+      coverButton?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          flowerGarden.open = true;
+          fadeOutCoverMusic(1800);
+          startGardenSoundscape(true);
+        }
+      });
+
+      gardenCover?.addEventListener("click", (event) => {
+        if (event.target.closest("#coverAudioPill")) return;
+        const openGardenButton = event.target.closest(".cover-button");
+        if (!openGardenButton) {
+          event.preventDefault();
+          if (coverMusic.paused && !userPausedCoverMusic) {
+            startCoverMusic();
+          }
+          return;
+        }
         fadeOutCoverMusic(1800);
         startGardenSoundscape(true);
       });
@@ -1201,10 +1349,16 @@
       });
       window.addEventListener("hashchange", syncScreenSound);
 
-      const resumeAudioForCurrentScreen = () => {
-        if (isLetterScreen()) playLetterPlaylistTrack();
-        else if (flowerGarden?.open) startGardenSoundscape(false);
-        else startCoverMusic();
+      const resumeAudioForCurrentScreen = (event) => {
+        if (isLetterScreen()) {
+          playLetterPlaylistTrack();
+        } else if (flowerGarden?.open) {
+          startGardenSoundscape(false);
+        } else {
+          if (!userPausedCoverMusic && !event?.target?.closest?.("#coverAudioPill")) {
+            startCoverMusic();
+          }
+        }
       };
       document.addEventListener("pointerdown", resumeAudioForCurrentScreen, true);
       document.addEventListener("keydown", resumeAudioForCurrentScreen, true);
