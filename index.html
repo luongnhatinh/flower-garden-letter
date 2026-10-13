@@ -1,0 +1,1254 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171226">
+  <title>Gửi iu</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #fff6ec;
+      --night: #171226;
+      --rose: #ffd8dc;
+      --gold: #ffe4ad;
+      --paper: #fff8ef;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; }
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      background: var(--night);
+    }
+
+    .page-anchor { position: fixed; top: 0; left: 0; width: 1px; height: 1px; pointer-events: none; }
+    .screen { position: fixed; inset: 0; display: none; overflow: hidden; }
+    #flowerGarden { position: fixed; inset: 0; z-index: 2; display: block; }
+    #flowerGarden[open] > .garden-cover { display: none; }
+    #flowerGarden[open] > #gardenScreen { display: grid; }
+    #letterPage:target ~ #flowerGarden { display: none; }
+    #letterPage:target ~ #letterScreen { display: grid; }
+    #gardenPage:target ~ #flowerGarden { display: block; }
+    #gardenPage:target ~ #letterScreen { display: none; }
+
+    .garden-cover {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      overflow: hidden;
+      list-style: none;
+      text-align: center;
+      cursor: pointer;
+      background:
+        radial-gradient(ellipse at 50% 39%, rgba(126, 85, 145, .43), transparent 44%),
+        radial-gradient(ellipse at 20% 100%, rgba(73, 110, 94, .22), transparent 45%),
+        linear-gradient(155deg, #171226, #251936 58%, #182634);
+    }
+    .garden-cover::-webkit-details-marker { display: none; }
+    .garden-cover::before, .garden-cover::after {
+      content: "✧";
+      position: absolute;
+      color: rgba(255, 229, 193, .65);
+      font: 2rem Georgia, serif;
+      animation: glimmer 3s ease-in-out infinite alternate;
+    }
+    .garden-cover::before { top: 16%; left: 17%; }
+    .garden-cover::after { right: 18%; bottom: 16%; animation-delay: 1s; }
+    .cover-card { position: relative; z-index: 1; width: min(100%, 620px); pointer-events: none; }
+    .cover-flower { display: block; width: 102px; height: 102px; margin: 0 auto 27px; filter: drop-shadow(0 0 28px rgba(255, 187, 216, .45)); animation: cover-breathe 3s ease-in-out infinite; }
+    .cover-kicker { margin: 0 0 13px; color: #ead0df; font-size: .68rem; font-weight: 600; letter-spacing: .29em; text-transform: uppercase; }
+    .cover-title { margin: 0; color: #fff5e9; font: 400 clamp(2.1rem, 6vw, 4.4rem)/1.06 Georgia, "Times New Roman", serif; letter-spacing: -.04em; text-wrap: balance; }
+    .cover-copy { margin: 16px 0 27px; color: rgba(255, 242, 231, .76); font: normal clamp(.96rem, 2vw, 1.12rem) "Segoe UI", Arial, sans-serif; }
+    .cover-button { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: 12px; padding: 0 25px; border: 1px solid rgba(255, 230, 220, .54); border-radius: 999px; color: #fff8f1; background: linear-gradient(110deg, rgba(233, 165, 198, .27), rgba(240, 199, 164, .17)); box-shadow: 0 10px 34px rgba(11, 8, 23, .24), inset 0 0 18px rgba(255,255,255,.04); font-size: .92rem; letter-spacing: .03em; backdrop-filter: blur(10px); }
+    .cover-heart { color: #ed405b; font-size: 1.15em; line-height: 1; }
+
+    .svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+    .garden-screen {
+      isolation: isolate;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 50% 36%, rgba(109, 70, 132, .58), transparent 45%),
+        radial-gradient(ellipse at 88% 21%, rgba(89, 88, 143, .27), transparent 34%),
+        linear-gradient(180deg, #171226 0%, #251936 46%, #28243d 72%, #182634 100%);
+    }
+
+    .garden-screen::before, .garden-screen::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: 45vmax;
+      aspect-ratio: 1;
+      border: 1px solid rgba(255, 228, 198, .09);
+      border-radius: 50%;
+      box-shadow: 0 0 100px rgba(231, 172, 222, .08), inset 0 0 100px rgba(231, 172, 222, .04);
+      pointer-events: none;
+    }
+    .garden-screen::before { top: -31vmax; left: 28%; }
+    .garden-screen::after { right: -25vmax; bottom: -32vmax; width: 68vmax; }
+
+    .star-field {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        radial-gradient(1px 1px at 9% 17%, rgba(255,255,255,.9) 98%, transparent),
+        radial-gradient(1.5px 1.5px at 20% 31%, rgba(255,224,182,.85) 98%, transparent),
+        radial-gradient(1px 1px at 75% 12%, rgba(255,255,255,.85) 98%, transparent),
+        radial-gradient(1px 1px at 91% 29%, rgba(255,217,237,.8) 98%, transparent),
+        radial-gradient(1px 1px at 65% 39%, rgba(255,255,255,.7) 98%, transparent),
+        radial-gradient(1px 1px at 41% 10%, rgba(255,230,185,.8) 98%, transparent);
+      background-size: 430px 310px;
+      opacity: .72;
+      animation: starlight 24s linear infinite;
+      pointer-events: none;
+    }
+
+    .garden-heading {
+      position: absolute;
+      z-index: 8;
+      top: clamp(28px, 6vh, 68px);
+      left: 18px;
+      right: 18px;
+      text-align: center;
+      animation: heading-arrive 1.4s .25s both;
+      text-shadow: 0 3px 28px rgba(13, 8, 24, .5);
+      pointer-events: none;
+    }
+    .garden-heading::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: -14px;
+      bottom: -14px;
+      left: 50%;
+      width: min(860px, calc(100vw - 36px));
+      border: 1px solid rgba(255, 236, 227, .13);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(25, 18, 39, .88), rgba(25, 18, 39, .78) 72%, rgba(25, 18, 39, .64));
+      box-shadow: 0 18px 52px rgba(9, 6, 20, .22), inset 0 1px 0 rgba(255,255,255,.035);
+      backdrop-filter: blur(10px);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .garden-heading .eyebrow, .letter-heading .eyebrow {
+      margin: 0 0 12px;
+      color: #ead0df;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+    }
+    .garden-heading h1, .letter-heading h1 {
+      margin: 0;
+      color: #fff5e9;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.1rem, 5.5vw, 4.5rem);
+      font-weight: 400;
+      letter-spacing: -.04em;
+      line-height: 1.04;
+      text-wrap: balance;
+    }
+    .garden-heading p:last-child {
+      margin: 14px 0 0;
+      color: rgba(255, 242, 231, .76);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(.95rem, 2vw, 1.12rem);
+      font-style: italic;
+    }
+
+    .garden-glow {
+      position: absolute;
+      z-index: 1;
+      left: 50%;
+      top: 56%;
+      width: min(88vw, 1050px);
+      height: 45vh;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(249, 178, 211, .22), rgba(193, 135, 198, .07) 48%, transparent 73%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .meadow {
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .meadow::before, .meadow::after {
+      content: "";
+      position: absolute;
+      left: -12%;
+      width: 124%;
+      height: 28vh;
+      min-height: 155px;
+      border-radius: 50% 50% 0 0 / 14% 14% 0 0;
+      pointer-events: none;
+    }
+    .meadow::before {
+      bottom: -15vh;
+      background: linear-gradient(180deg, rgba(67, 106, 93, .7), #142d34 74%);
+      filter: drop-shadow(0 -20px 55px rgba(181, 151, 180, .14));
+    }
+    .meadow::after {
+      left: -18%;
+      bottom: -20vh;
+      width: 135%;
+      height: 23vh;
+      background: linear-gradient(180deg, rgba(49, 91, 81, .74), #10272e 78%);
+    }
+
+    .flower-row {
+      position: absolute;
+      left: -4%;
+      width: 108%;
+      height: var(--row-height);
+      bottom: var(--row-bottom);
+      z-index: var(--layer);
+      transform: translateY(15vh);
+      overflow: visible;
+      pointer-events: none;
+    }
+    .flower-row-1 { --row-bottom: 76vh; --row-height: 16vh; --layer: 2; }
+    .flower-row-2 { --row-bottom: 65vh; --row-height: 20vh; --layer: 3; }
+    .flower-row-3 { --row-bottom: 54vh; --row-height: 28vh; --layer: 4; }
+    .flower-row-4 { --row-bottom: 42vh; --row-height: 37vh; --layer: 5; }
+    .flower-row-5 { --row-bottom: 29vh; --row-height: 47vh; --layer: 6; }
+    .flower-row-6 { --row-bottom: 14vh; --row-height: 52vh; --layer: 7; }
+    .flower-row-7 { --row-bottom: 4vh; --row-height: 51vh; --layer: 8; }
+    .flower-item {
+      position: absolute;
+      left: var(--x);
+      bottom: 0;
+      width: var(--w);
+      height: var(--h);
+      opacity: 0;
+      transform-origin: 50% 100%;
+      animation: flower-rise 2.1s var(--delay, 0s) cubic-bezier(.16,.72,.16,1) forwards;
+      filter: drop-shadow(0 0 8px rgba(255, 230, 222, .2));
+    }
+    .memory-flower-trigger {
+      display: block;
+      z-index: 1;
+      padding: 0;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      appearance: none;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .flower-item[hidden] { display: none !important; }
+    .memory-flower-trigger:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 4px;
+      border-radius: 50%;
+    }
+    .memory-flower-trigger::after {
+      content: "✧";
+      position: absolute;
+      top: 19%;
+      right: 14%;
+      color: var(--gold);
+      font: 1.1rem Georgia, serif;
+      text-shadow: 0 0 13px rgba(255, 228, 173, .9);
+      animation: glimmer 2.6s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    .memory-flower-trigger:hover svg, .memory-flower-trigger:focus-visible svg { filter: drop-shadow(0 0 14px rgba(255, 222, 164, .85)); }
+    .memory-flower-trigger.is-awake svg { filter: drop-shadow(0 0 15px rgba(255, 222, 164, .9)); }
+    .memory-flower-trigger:disabled { cursor: default; }
+    .memory-flower-trigger:disabled::after { content: none; animation: none; }
+    .memory-flower-trigger:disabled svg { filter: saturate(.68) brightness(.86); }
+    .flower-item svg { display: block; width: 100%; height: 100%; overflow: visible; animation: flower-sway 6s ease-in-out 3s infinite; }
+    .flower-row-far { filter: blur(.45px); opacity: .84; }
+    .flower-row-near { filter: drop-shadow(0 -5px 24px rgba(29, 43, 39, .24)); }
+    .flower-row-foreground { filter: drop-shadow(0 -8px 22px rgba(15, 38, 34, .3)); }
+    .palette-pink { --petal: #ec87ae; --inner: #ffd8e2; --core: #f6d36c; --leaf: #78a176; --stem: #64866d; }
+    .palette-blush { --petal: #efb0bf; --inner: #fff0e3; --core: #e8bc5c; --leaf: #7f9f72; --stem: #67866c; }
+    .palette-purple { --petal: #a889d0; --inner: #e8dafa; --core: #f0d36f; --leaf: #809975; --stem: #647e70; }
+    .palette-lilac { --petal: #c69edb; --inner: #f1e4f8; --core: #f1cd64; --leaf: #7d9a78; --stem: #628371; }
+    .palette-white { --petal: #fff1dc; --inner: #fffaf1; --core: #f3c95d; --leaf: #7da078; --stem: #658774; }
+    .palette-yellow { --petal: #f3c143; --inner: #ffe48b; --core: #805038; --leaf: #72966c; --stem: #607e66; }
+    .palette-red { --petal: #e96375; --inner: #ff9c9c; --core: #44354d; --leaf: #779c72; --stem: #607e66; }
+    .palette-coral { --petal: #f18c72; --inner: #ffd4ad; --core: #f0d06b; --leaf: #759c73; --stem: #62836c; }
+    .palette-blue { --petal: #839fd3; --inner: #dce9ff; --core: #f0cb6a; --leaf: #7b9d79; --stem: #668574; }
+
+    .continue-link, .letter-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 50px;
+      padding: 0 24px;
+      border: 1px solid rgba(255, 230, 220, .48);
+      border-radius: 999px;
+      color: #fff8f1;
+      background: linear-gradient(110deg, rgba(233, 165, 198, .25), rgba(240, 199, 164, .16));
+      box-shadow: 0 10px 34px rgba(11, 8, 23, .24), inset 0 0 18px rgba(255,255,255,.035);
+      font: inherit;
+      font-size: .91rem;
+      letter-spacing: .025em;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      transition: transform .25s ease, border-color .25s ease, background .25s ease;
+    }
+    .continue-link:hover, .letter-back:hover { transform: translateY(-2px); border-color: rgba(255, 240, 216, .85); background: rgba(237, 188, 198, .3); }
+    .continue-link:focus-visible, .letter-back:focus-visible, .envelope-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+    .continue-link { position: absolute; z-index: 12; left: 50%; bottom: clamp(22px, 5vh, 52px); transform: translateX(-50%); white-space: nowrap; animation: invite-arrive .9s 5s both; }
+    .continue-link:hover { transform: translate(-50%, -2px); }
+
+    .flower-note-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    .flower-note-card {
+      position: absolute;
+      z-index: 15;
+      top: 57%;
+      left: 50%;
+      width: min(390px, calc(100vw - 36px));
+      padding: 25px 28px 24px;
+      border: 1px solid rgba(255, 229, 215, .34);
+      border-radius: 20px;
+      color: #fff6ec;
+      text-align: center;
+      background: linear-gradient(145deg, rgba(43, 31, 57, .94), rgba(53, 42, 62, .91));
+      box-shadow: 0 22px 75px rgba(9, 6, 20, .42), inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(16px);
+      transform: translate(-50%, -50%);
+      animation: note-arrive .45s cubic-bezier(.2,.75,.2,1) both;
+    }
+    .flower-note-card[hidden] { display: none; }
+    .flower-note-card:focus { outline: 2px solid rgba(255, 228, 173, .7); outline-offset: 4px; }
+    .memory-bloom {
+      position: relative;
+      width: 106px;
+      height: 132px;
+      margin: 0 auto 13px;
+      isolation: isolate;
+    }
+    .memory-bloom::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 3px;
+      left: 50%;
+      width: 92px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--memory-glow, rgba(255, 225, 171, .33)), transparent 70%);
+      transform: translateX(-50%) scale(.62);
+      opacity: .65;
+    }
+    .memory-bloom::after {
+      content: "✧";
+      position: absolute;
+      top: 12px;
+      right: 1px;
+      color: #ffe4ad;
+      font-size: 1.2rem;
+      text-shadow: 0 0 14px rgba(255, 228, 173, .85);
+      opacity: 0;
+    }
+    .memory-bloom svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 0 14px var(--memory-glow, rgba(255, 225, 171, .35)));
+      transform-origin: 50% 28%;
+    }
+    #flowerNote[data-effect="bloom"] .memory-bloom::before { animation: memory-halo 1.1s ease-out both; }
+    #flowerNote[data-effect="bloom"] .memory-bloom svg { animation: memory-bloom-in .95s cubic-bezier(.16,.78,.2,1) both; }
+    #flowerNote[data-effect="unfurl"] .memory-bloom svg { animation: memory-unfurl 1s cubic-bezier(.18,.8,.2,1) both; }
+    #flowerNote[data-effect="sparkle"] .memory-bloom::after { animation: memory-sparkle 1.6s .25s ease-in-out infinite alternate; }
+    #flowerNote[data-effect="sparkle"] .memory-bloom svg { animation: memory-bloom-in .85s cubic-bezier(.16,.78,.2,1) both; }
+    #flowerNote[data-effect="drift"] .memory-bloom::before { animation: memory-halo 1.25s ease-out both; }
+    #flowerNote[data-effect="drift"] .memory-bloom svg { animation: memory-drift 2.4s ease-in-out both; }
+    .memory-bloom.palette-white { --memory-glow: rgba(255, 225, 171, .42); }
+    .memory-bloom.palette-pink { --memory-glow: rgba(244, 141, 190, .42); }
+    .memory-bloom.palette-coral { --memory-glow: rgba(255, 164, 129, .4); }
+    .memory-bloom.palette-purple { --memory-glow: rgba(197, 160, 236, .42); }
+    .flower-note-kicker { margin: 0 0 9px; color: #edc8d8; font-size: .65rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+    .flower-note-card h2 { margin: 0; color: #fff5e9; font: 400 1.55rem/1.2 Georgia, "Times New Roman", serif; }
+    .flower-note-message { margin: 11px 0 0; color: rgba(255, 242, 231, .82); font-family: Georgia, "Times New Roman", serif; font-size: 1rem; font-style: italic; line-height: 1.65; }
+    .flower-note-hint { margin: 14px 0 0; color: rgba(255, 228, 203, .67); font-size: .75rem; letter-spacing: .02em; }
+    .flower-note-close {
+      position: absolute;
+      top: 10px;
+      right: 11px;
+      display: grid;
+      width: 34px;
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 50%;
+      color: rgba(255, 248, 241, .88);
+      background: rgba(255,255,255,.07);
+      font: inherit;
+      font-size: 1.15rem;
+      cursor: pointer;
+    }
+    .letter-screen {
+      z-index: 20;
+      overflow-y: auto;
+      place-items: center;
+      padding: 36px 18px 48px;
+      background:
+        radial-gradient(ellipse at 50% 8%, rgba(189, 134, 169, .25), transparent 45%),
+        linear-gradient(150deg, #211b30, #35243a 53%, #1c2733);
+    }
+    .letter-screen::before, .letter-screen::after {
+      content: "✧";
+      position: fixed;
+      color: rgba(255, 231, 195, .55);
+      font-family: Georgia, serif;
+      font-size: 2.2rem;
+      animation: glimmer 3s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    .letter-screen::before { top: 12%; left: 9%; }
+    .letter-screen::after { right: 10%; bottom: 14%; animation-delay: 1.2s; }
+
+    .letter-wrap { position: relative; width: min(100%, 760px); margin: auto; text-align: center; }
+    .letter-back { position: fixed; z-index: 30; top: 20px; left: 20px; min-height: 42px; padding: 0 17px; font-size: .82rem; }
+    .letter-heading { margin: 0 0 22px; }
+    .letter-heading .eyebrow { color: #edc8d8; }
+    .letter-heading h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
+    .letter-heading p:last-child { margin: 12px 0 0; color: rgba(255, 242, 231, .7); font-family: Georgia, serif; font-style: italic; }
+
+    .letter-box { width: 100%; }
+    .envelope-trigger { display: block; width: max-content; max-width: 100%; margin: 0 auto; list-style: none; cursor: pointer; }
+    .envelope-trigger::-webkit-details-marker { display: none; }
+    .envelope-trigger::marker { content: ""; }
+    .envelope-scene { position: relative; width: min(80vw, 390px); height: 226px; margin: 12px auto 11px; perspective: 900px; }
+    .letter-pocket { position: absolute; z-index: 1; inset: 0; overflow: visible; pointer-events: none; }
+    .letter-box[open] .letter-pocket { z-index: 6; }
+    .envelope {
+      z-index: 2;
+      position: absolute;
+      inset: 34px 0 0;
+      overflow: hidden;
+      border: 1px solid rgba(255, 238, 224, .48);
+      border-radius: 8px 8px 18px 18px;
+      background: linear-gradient(145deg, #dbaeb9, #b77e9f 62%, #895f83);
+      box-shadow: 0 24px 70px rgba(9, 5, 20, .38), inset 0 1px 18px rgba(255,255,255,.2);
+    }
+    .envelope::before, .envelope::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      pointer-events: none;
+    }
+    .envelope::before { background: linear-gradient(35deg, transparent 49.4%, rgba(255,244,232,.28) 50%, transparent 50.7%), linear-gradient(-35deg, transparent 49.4%, rgba(255,244,232,.22) 50%, transparent 50.7%); }
+    .envelope::after { z-index: 4; background: linear-gradient(145deg, rgba(245, 210, 207, .95), rgba(204, 153, 180, .93)); clip-path: polygon(0 0, 100% 0, 50% 60%); transform-origin: top center; transition: transform .7s cubic-bezier(.2,.75,.2,1), opacity .6s ease; }
+    .letter-card {
+      position: absolute;
+      z-index: 1;
+      left: 13%;
+      top: 42px;
+      bottom: 24px;
+      width: 74%;
+      padding: 22px;
+      border-radius: 5px;
+      color: #75566e;
+      background: linear-gradient(160deg, #fffdf8, #f8eee2);
+      box-shadow: 0 4px 20px rgba(39, 20, 44, .15);
+      opacity: 0;
+      transform: translateY(0);
+      transition: opacity .6s .08s, transform .85s .08s cubic-bezier(.15,.75,.2,1);
+    }
+    .letter-card::before { content: "✿"; display: block; color: #bd7b98; font-size: 2.2rem; }
+    .envelope-front { position: absolute; z-index: 3; inset: 40% 0 0; background: linear-gradient(145deg, #d9a5b3, #a86f91); clip-path: polygon(0 100%, 50% 12%, 100% 100%); }
+    .seal { position: absolute; z-index: 5; left: 50%; top: 67%; display: grid; width: 42px; aspect-ratio: 1; place-items: center; border: 1px solid rgba(255,239,212,.62); border-radius: 50%; color: #fff4df; background: radial-gradient(circle at 34% 28%, #e7b985, #ad688d); box-shadow: 0 4px 14px rgba(43,20,45,.25); transform: translate(-50%,-50%); transition: opacity .35s ease, transform .55s ease; }
+    .letter-box[open] .envelope::after { opacity: .4; transform: rotateX(180deg); }
+    .letter-box[open] .letter-card { opacity: 1; transform: translateY(-95px); }
+    .letter-box[open] .seal { opacity: 0; transform: translate(-50%,-50%) scale(.55); }
+    .envelope-label { display: block; color: #fff7ef; font-size: .92rem; letter-spacing: .04em; text-shadow: 0 2px 15px rgba(8,5,17,.35); }
+    .open-envelope-label { display: none; }
+    .letter-box[open] .closed-envelope-label { display: none; }
+    .letter-box[open] .open-envelope-label { display: inline; }
+
+    .letter-paper {
+      position: relative;
+      width: min(100%, 620px);
+      margin: 25px auto 0;
+      padding: clamp(27px, 5vw, 48px) clamp(24px, 7vw, 64px);
+      color: #51424a;
+      font-family: "Segoe UI", Arial, sans-serif;
+      text-align: left;
+      border: 1px solid rgba(255,255,255,.68);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, transparent 0 45px, rgba(218, 151, 168, .28) 45px 46px, transparent 46px),
+        repeating-linear-gradient(180deg, transparent 0 31px, rgba(159, 153, 155, .14) 31px 32px),
+        linear-gradient(155deg, #fffdf7, #f8f0e6);
+      box-shadow: 0 24px 80px rgba(9, 6, 18, .26);
+      animation: paper-open .9s .12s both;
+    }
+    .letter-paper > * { opacity: 0; transform: translateY(9px); }
+    .letter-box[open] .letter-paper > * { animation: letter-line-arrive .7s ease both; }
+    .letter-box[open] .letter-paper > *:nth-child(1) { animation-delay: .28s; }
+    .letter-box[open] .letter-paper > *:nth-child(2) { animation-delay: .48s; }
+    .letter-box[open] .letter-paper > *:nth-child(3) { animation-delay: .68s; }
+    .letter-box[open] .letter-paper > *:nth-child(4) { animation-delay: .88s; }
+    .paper-mark { margin: 0 0 17px; color: #b97694; font-size: .68rem; letter-spacing: .23em; text-transform: uppercase; }
+    .letter-salutation { margin: 0 0 15px; color: #694d5a; font-size: 1.18rem; }
+    .message-placeholder { min-height: 112px; margin: 0; color: #806f74; font-size: 1.08rem; font-style: italic; line-height: 2; }
+    .letter-signoff { margin: 23px 0 0; color: #745464; font-style: italic; text-align: right; }
+    .letter-footnote { margin: 19px 0 0; color: rgba(255, 239, 231, .58); font-size: .74rem; letter-spacing: .04em; }
+
+    @keyframes starlight { to { background-position: 0 310px; } }
+    @keyframes cover-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-7px) scale(1.04); } }
+    @keyframes heading-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes flower-rise { 0% { opacity: 0; transform: translateY(38px) scale(.04) rotate(-4deg); } 72% { opacity: 1; transform: translateY(-5px) scale(1.025) rotate(1deg); } 100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+    @keyframes flower-sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.3deg); } }
+    @keyframes invite-arrive { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    @keyframes glimmer { from { opacity: .4; transform: scale(.82) rotate(-10deg); } to { opacity: 1; transform: scale(1.12) rotate(12deg); } }
+    @keyframes paper-open { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes letter-line-arrive { to { opacity: 1; transform: translateY(0); } }
+    @keyframes note-arrive { from { opacity: 0; transform: translate(-50%, calc(-50% + 10px)) scale(.98); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    @keyframes memory-halo { from { opacity: .08; transform: translateX(-50%) scale(.25); } 70% { opacity: .9; } to { opacity: .62; transform: translateX(-50%) scale(1.18); } }
+    @keyframes memory-bloom-in { from { opacity: .2; transform: scale(.25) rotate(-18deg); } 72% { opacity: 1; transform: scale(1.08) rotate(4deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+    @keyframes memory-unfurl { from { opacity: .15; transform: scale(.32) rotate(-72deg); } 65% { opacity: 1; transform: scale(1.08) rotate(8deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+    @keyframes memory-sparkle { from { opacity: .15; transform: scale(.65) rotate(-24deg); } to { opacity: 1; transform: scale(1.25) rotate(28deg); } }
+    @keyframes memory-drift { 0% { opacity: .2; transform: translateY(12px) rotate(-7deg) scale(.78); } 55% { opacity: 1; transform: translateY(-5px) rotate(4deg) scale(1.04); } 100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); } }
+
+    @media (max-width: 650px) {
+      .garden-heading { top: 7vh; }
+      .garden-heading .eyebrow { font-size: .58rem; letter-spacing: .22em; }
+      .garden-heading p:last-child { max-width: 280px; margin: 12px auto 0; }
+      .flower-row { left: -8%; width: 116%; }
+      .flower-item { width: var(--mobile-w, var(--w)); }
+      .continue-link { bottom: 24px; min-height: 46px; padding-inline: 19px; font-size: .84rem; }
+      .flower-note-card { top: 58%; padding: 24px 22px 21px; }
+      .letter-screen { padding: 78px 16px 34px; place-items: start center; }
+      .letter-back { position: absolute; top: 16px; left: 16px; min-height: 38px; }
+      .letter-heading { margin-bottom: 17px; }
+      .envelope-scene { width: min(78vw, 350px); height: 204px; }
+      .letter-paper { margin-top: 20px; padding-left: 38px; background-position: left top; }
+    }
+    @media (max-height: 650px) and (min-width: 651px) {
+      .garden-heading { top: 4vh; }
+      .garden-heading h1 { font-size: clamp(2rem, 6vh, 3rem); }
+      .garden-heading p:last-child { margin-top: 8px; }
+      .letter-screen { padding-top: 18px; }
+      .letter-heading { margin-bottom: 8px; }
+      .letter-heading h1 { font-size: 2.2rem; }
+      .envelope-scene { height: 185px; margin-top: 4px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      .letter-paper > * { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="tulipFlower" viewBox="0 0 100 230">
+      <path d="M50 73 C39 65 29 51 31 26 C40 30 47 39 50 49 C53 38 62 29 70 26 C72 51 61 66 50 73Z" fill="var(--petal,#eb8cae)" />
+      <path d="M50 70 C44 55 46 39 50 20 C56 40 58 56 50 70Z" fill="var(--inner,#ffdce4)" opacity=".85" />
+      <path d="M50 70 C48 130 52 178 50 227" fill="none" stroke="var(--stem,#6f977b)" stroke-width="4" stroke-linecap="round" />
+      <path d="M51 163 C30 135 14 139 17 154 C21 173 38 177 51 163Z M50 190 C69 159 88 164 83 180 C78 197 62 202 50 190Z" fill="var(--leaf,#7da67e)" />
+    </symbol>
+    <symbol id="daisyFlower" viewBox="0 0 100 230">
+      <g fill="var(--petal,#fff3e1)">
+        <ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(0 50 52)" /><ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(36 50 52)" />
+        <ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(72 50 52)" /><ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(108 50 52)" />
+        <ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(144 50 52)" /><ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(180 50 52)" />
+        <ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(216 50 52)" /><ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(252 50 52)" />
+        <ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(288 50 52)" /><ellipse cx="50" cy="25" rx="8" ry="24" transform="rotate(324 50 52)" />
+      </g>
+      <circle cx="50" cy="52" r="11" fill="var(--core,#f4c65f)" />
+      <path d="M50 64 C48 126 53 175 50 227" fill="none" stroke="var(--stem,#6f977b)" stroke-width="4" stroke-linecap="round" />
+      <path d="M50 157 C30 132 14 138 18 153 C22 170 39 175 50 157Z M51 188 C68 160 87 164 82 179 C77 197 62 201 51 188Z" fill="var(--leaf,#7da67e)" />
+    </symbol>
+    <symbol id="poppyFlower" viewBox="0 0 100 230">
+      <g fill="var(--petal,#ee6f78)">
+        <ellipse cx="50" cy="35" rx="23" ry="28" /><ellipse cx="28" cy="50" rx="20" ry="25" transform="rotate(-32 28 50)" />
+        <ellipse cx="72" cy="50" rx="20" ry="25" transform="rotate(32 72 50)" /><ellipse cx="37" cy="69" rx="20" ry="23" transform="rotate(25 37 69)" />
+        <ellipse cx="63" cy="69" rx="20" ry="23" transform="rotate(-25 63 69)" />
+      </g>
+      <circle cx="50" cy="55" r="12" fill="var(--core,#3e344b)" />
+      <circle cx="50" cy="55" r="5" fill="var(--inner,#e8c578)" />
+      <path d="M50 78 C49 132 52 180 50 227" fill="none" stroke="var(--stem,#6f977b)" stroke-width="4" stroke-linecap="round" />
+      <path d="M50 157 C29 133 14 139 18 154 C22 171 39 175 50 157Z M51 188 C68 161 87 164 82 180 C77 198 62 201 51 188Z" fill="var(--leaf,#7da67e)" />
+    </symbol>
+    <symbol id="sunflowerFlower" viewBox="0 0 100 230">
+      <g fill="var(--petal,#f5c347)">
+        <ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(0 50 51)" /><ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(30 50 51)" />
+        <ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(60 50 51)" /><ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(90 50 51)" />
+        <ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(120 50 51)" /><ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(150 50 51)" />
+        <ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(180 50 51)" /><ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(210 50 51)" />
+        <ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(240 50 51)" /><ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(270 50 51)" />
+        <ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(300 50 51)" /><ellipse cx="50" cy="22" rx="6" ry="22" transform="rotate(330 50 51)" />
+      </g>
+      <circle cx="50" cy="51" r="14" fill="var(--core,#704a35)" />
+      <circle cx="50" cy="51" r="9" fill="var(--inner,#98664a)" />
+      <path d="M50 66 C49 132 52 180 50 227" fill="none" stroke="var(--stem,#6f977b)" stroke-width="4" stroke-linecap="round" />
+      <path d="M50 157 C29 132 13 140 18 155 C23 172 39 175 50 157Z M51 187 C68 160 87 164 82 180 C77 198 62 201 51 187Z" fill="var(--leaf,#7da67e)" />
+    </symbol>
+    <symbol id="lavenderFlower" viewBox="0 0 100 230">
+      <path d="M50 65 C48 128 52 176 50 227" fill="none" stroke="var(--stem,#6f977b)" stroke-width="4" stroke-linecap="round" />
+      <path d="M50 164 C30 139 15 144 19 159 C23 176 39 180 50 164Z M50 193 C68 167 84 171 80 186 C75 202 62 207 50 193Z" fill="var(--leaf,#7da67e)" />
+      <g fill="var(--petal,#a786cf)">
+        <ellipse cx="49" cy="20" rx="10" ry="16" /><ellipse cx="39" cy="34" rx="10" ry="13" transform="rotate(-28 39 34)" />
+        <ellipse cx="59" cy="35" rx="10" ry="13" transform="rotate(28 59 35)" /><ellipse cx="42" cy="49" rx="10" ry="12" transform="rotate(-22 42 49)" />
+        <ellipse cx="57" cy="51" rx="10" ry="12" transform="rotate(22 57 51)" /><ellipse cx="50" cy="62" rx="9" ry="11" />
+      </g>
+      <circle cx="50" cy="17" r="6" fill="var(--inner,#e5d4f5)" />
+    </symbol>
+    <symbol id="cosmosFlower" viewBox="0 0 100 230">
+      <g fill="var(--petal,#ed9bc6)">
+        <ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(0 50 54)" /><ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(45 50 54)" />
+        <ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(90 50 54)" /><ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(135 50 54)" />
+        <ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(180 50 54)" /><ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(225 50 54)" />
+        <ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(270 50 54)" /><ellipse cx="50" cy="27" rx="10" ry="27" transform="rotate(315 50 54)" />
+      </g>
+      <circle cx="50" cy="54" r="9" fill="var(--core,#f3cf71)" />
+      <path d="M50 63 C48 127 52 178 50 227" fill="none" stroke="var(--stem,#6f977b)" stroke-width="4" stroke-linecap="round" />
+      <path d="M50 158 C31 135 15 141 19 155 C23 173 39 176 50 158Z M51 189 C68 162 84 166 80 181 C75 198 61 202 51 189Z" fill="var(--leaf,#7da67e)" />
+    </symbol>
+  </svg>
+
+  <span class="page-anchor" id="gardenPage" aria-hidden="true"></span>
+  <span class="page-anchor" id="letterPage" aria-hidden="true"></span>
+
+  <details class="garden-gate" id="flowerGarden">
+    <summary class="garden-cover">
+      <div class="cover-card">
+        <svg class="cover-flower" viewBox="0 0 100 100" aria-hidden="true">
+          <g fill="#f5a6c2">
+            <ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(0 50 50)" /><ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(45 50 50)" />
+            <ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(90 50 50)" /><ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(135 50 50)" />
+            <ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(180 50 50)" /><ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(225 50 50)" />
+            <ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(270 50 50)" /><ellipse cx="50" cy="22" rx="9" ry="24" transform="rotate(315 50 50)" />
+          </g>
+          <circle cx="50" cy="50" r="12" fill="#ffe49a" />
+        </svg>
+        <p class="cover-kicker">GỬI TẶNG IU MỘT VƯỜN HOA</p>
+        <h1 class="cover-title">Không chỉ là đóa hoa<br>mà cả 1 khu vườn</h1>
+        <p class="cover-copy">Iu nhấn cái nút ở dưới nhá.</p>
+        <span class="cover-button">Cái nút này này <span class="cover-heart" aria-hidden="true">♥</span></span>
+      </div>
+    </summary>
+
+  <section class="screen garden-screen" id="gardenScreen" aria-labelledby="gardenTitle">
+    <div class="star-field" aria-hidden="true"></div>
+    <div class="garden-glow" aria-hidden="true"></div>
+    <header class="garden-heading">
+      <p class="eyebrow">MỘT KHU VƯỜN DÀNH TẶNG BẠN</p>
+      <h1 id="gardenTitle">Mong bạn luôn<br>nở rộ theo cách riêng</h1>
+      <p>Mỗi bông hoa là một lời chúc dịu dàng.</p>
+    </header>
+
+    <div class="meadow">
+    <div class="flower-row flower-row-1 flower-row-far" aria-hidden="true">
+      <span class="flower-item palette-purple" style="--x:-2.00%;--w:6.35%;--mobile-w:7.65%;--h:88%;--delay:1.56s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:3.75%;--w:6.80%;--mobile-w:8.20%;--h:95%;--delay:1.63s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:9.50%;--w:7.25%;--mobile-w:8.75%;--h:89%;--delay:1.70s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:15.25%;--w:6.35%;--mobile-w:7.65%;--h:96%;--delay:1.77s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:21.00%;--w:6.80%;--mobile-w:8.20%;--h:90%;--delay:1.84s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:26.75%;--w:7.25%;--mobile-w:8.75%;--h:97%;--delay:1.91s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-blue" style="--x:32.50%;--w:6.35%;--mobile-w:7.65%;--h:91%;--delay:1.98s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:38.25%;--w:6.80%;--mobile-w:8.20%;--h:98%;--delay:2.05s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:44.00%;--w:7.25%;--mobile-w:8.75%;--h:92%;--delay:2.12s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:49.75%;--w:6.35%;--mobile-w:7.65%;--h:99%;--delay:2.19s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:55.50%;--w:6.80%;--mobile-w:8.20%;--h:93%;--delay:2.26s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:61.25%;--w:7.25%;--mobile-w:8.75%;--h:100%;--delay:2.33s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:67.00%;--w:6.35%;--mobile-w:7.65%;--h:94%;--delay:2.40s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-blue" style="--x:72.75%;--w:6.80%;--mobile-w:8.20%;--h:88%;--delay:2.47s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:78.50%;--w:7.25%;--mobile-w:8.75%;--h:95%;--delay:2.54s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:84.25%;--w:6.35%;--mobile-w:7.65%;--h:89%;--delay:2.61s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:90.00%;--w:6.80%;--mobile-w:8.20%;--h:96%;--delay:2.68s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-blue" style="--x:95.75%;--w:7.25%;--mobile-w:8.75%;--h:90%;--delay:2.75s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+    </div>
+    <div class="flower-row flower-row-2 flower-row-far" aria-hidden="true">
+      <span class="flower-item palette-white" style="--x:-2.00%;--w:7.25%;--mobile-w:8.65%;--h:91%;--delay:1.32s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:3.75%;--w:7.70%;--mobile-w:9.20%;--h:98%;--delay:1.39s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:9.50%;--w:8.15%;--mobile-w:9.75%;--h:92%;--delay:1.46s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:15.25%;--w:7.25%;--mobile-w:8.65%;--h:99%;--delay:1.53s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-blue" style="--x:21.00%;--w:7.70%;--mobile-w:9.20%;--h:93%;--delay:1.60s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:26.75%;--w:8.15%;--mobile-w:9.75%;--h:100%;--delay:1.67s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:32.50%;--w:7.25%;--mobile-w:8.65%;--h:94%;--delay:1.74s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:38.25%;--w:7.70%;--mobile-w:9.20%;--h:88%;--delay:1.81s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:44.00%;--w:8.15%;--mobile-w:9.75%;--h:95%;--delay:1.88s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:49.75%;--w:7.25%;--mobile-w:8.65%;--h:89%;--delay:1.95s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:55.50%;--w:7.70%;--mobile-w:9.20%;--h:96%;--delay:2.02s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-blue" style="--x:61.25%;--w:8.15%;--mobile-w:9.75%;--h:90%;--delay:2.09s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:67.00%;--w:7.25%;--mobile-w:8.65%;--h:97%;--delay:2.16s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:72.75%;--w:7.70%;--mobile-w:9.20%;--h:91%;--delay:2.23s"><svg viewBox="0 0 100 230"><use href="#lavenderFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:78.50%;--w:8.15%;--mobile-w:9.75%;--h:98%;--delay:2.30s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:84.25%;--w:7.25%;--mobile-w:8.65%;--h:92%;--delay:2.37s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:90.00%;--w:7.70%;--mobile-w:9.20%;--h:99%;--delay:2.44s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:95.75%;--w:8.15%;--mobile-w:9.75%;--h:93%;--delay:2.51s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+    </div>
+    <div class="flower-row flower-row-3" aria-hidden="true">
+      <span class="flower-item palette-red" style="--x:-2.00%;--w:8.75%;--mobile-w:10.25%;--h:94%;--delay:1.08s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:3.75%;--w:9.20%;--mobile-w:10.80%;--h:88%;--delay:1.15s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:9.50%;--w:9.65%;--mobile-w:11.35%;--h:95%;--delay:1.22s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:15.25%;--w:8.75%;--mobile-w:10.25%;--h:89%;--delay:1.29s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:21.00%;--w:9.20%;--mobile-w:10.80%;--h:96%;--delay:1.36s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:26.75%;--w:9.65%;--mobile-w:11.35%;--h:90%;--delay:1.43s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:32.50%;--w:8.75%;--mobile-w:10.25%;--h:97%;--delay:1.50s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:38.25%;--w:9.20%;--mobile-w:10.80%;--h:91%;--delay:1.57s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:44.00%;--w:9.65%;--mobile-w:11.35%;--h:98%;--delay:1.64s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-lilac" style="--x:49.75%;--w:8.75%;--mobile-w:10.25%;--h:92%;--delay:1.71s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:55.50%;--w:9.20%;--mobile-w:10.80%;--h:99%;--delay:1.78s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:61.25%;--w:9.65%;--mobile-w:11.35%;--h:93%;--delay:1.85s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:67.00%;--w:8.75%;--mobile-w:10.25%;--h:100%;--delay:1.92s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:72.75%;--w:9.20%;--mobile-w:10.80%;--h:94%;--delay:1.99s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-purple" style="--x:78.50%;--w:9.65%;--mobile-w:11.35%;--h:88%;--delay:2.06s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:84.25%;--w:8.75%;--mobile-w:10.25%;--h:95%;--delay:2.13s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:90.00%;--w:9.20%;--mobile-w:10.80%;--h:89%;--delay:2.20s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:95.75%;--w:9.65%;--mobile-w:11.35%;--h:96%;--delay:2.27s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+    </div>
+    <div class="flower-row flower-row-4" aria-hidden="true">
+      <span class="flower-item palette-yellow" style="--x:-2.00%;--w:10.35%;--mobile-w:11.95%;--h:97%;--delay:0.84s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:3.75%;--w:10.80%;--mobile-w:12.50%;--h:91%;--delay:0.91s"><svg viewBox="0 0 100 230"><use href="#sunflowerFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:9.50%;--w:11.25%;--mobile-w:13.05%;--h:98%;--delay:0.98s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:15.25%;--w:10.35%;--mobile-w:11.95%;--h:92%;--delay:1.05s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:21.00%;--w:10.80%;--mobile-w:12.50%;--h:99%;--delay:1.12s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:26.75%;--w:11.25%;--mobile-w:13.05%;--h:93%;--delay:1.19s"><svg viewBox="0 0 100 230"><use href="#sunflowerFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:32.50%;--w:10.35%;--mobile-w:11.95%;--h:100%;--delay:1.26s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:38.25%;--w:10.80%;--mobile-w:12.50%;--h:94%;--delay:1.33s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:44.00%;--w:11.25%;--mobile-w:13.05%;--h:88%;--delay:1.40s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:49.75%;--w:10.35%;--mobile-w:11.95%;--h:95%;--delay:1.47s"><svg viewBox="0 0 100 230"><use href="#sunflowerFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:55.50%;--w:10.80%;--mobile-w:12.50%;--h:89%;--delay:1.54s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:61.25%;--w:11.25%;--mobile-w:13.05%;--h:96%;--delay:1.61s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:67.00%;--w:10.35%;--mobile-w:11.95%;--h:90%;--delay:1.68s"><svg viewBox="0 0 100 230"><use href="#sunflowerFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:72.75%;--w:10.80%;--mobile-w:12.50%;--h:97%;--delay:1.75s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:78.50%;--w:11.25%;--mobile-w:13.05%;--h:91%;--delay:1.82s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:84.25%;--w:10.35%;--mobile-w:11.95%;--h:98%;--delay:1.89s"><svg viewBox="0 0 100 230"><use href="#sunflowerFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:90.00%;--w:10.80%;--mobile-w:12.50%;--h:92%;--delay:1.96s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:95.75%;--w:11.25%;--mobile-w:13.05%;--h:99%;--delay:2.03s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+    </div>
+    <div class="flower-row flower-row-5 flower-row-near flower-row-foreground" aria-hidden="true">
+      <span class="flower-item palette-pink" style="--x:-2.00%;--w:12.85%;--mobile-w:14.65%;--h:100%;--delay:0.60s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:3.75%;--w:13.30%;--mobile-w:15.20%;--h:94%;--delay:0.67s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:9.50%;--w:13.75%;--mobile-w:15.75%;--h:88%;--delay:0.74s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:15.25%;--w:12.85%;--mobile-w:14.65%;--h:95%;--delay:0.81s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:21.00%;--w:13.30%;--mobile-w:15.20%;--h:89%;--delay:0.88s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:26.75%;--w:13.75%;--mobile-w:15.75%;--h:96%;--delay:0.95s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:32.50%;--w:12.85%;--mobile-w:14.65%;--h:90%;--delay:1.02s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:38.25%;--w:13.30%;--mobile-w:15.20%;--h:97%;--delay:1.09s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:44.00%;--w:13.75%;--mobile-w:15.75%;--h:91%;--delay:1.16s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:49.75%;--w:12.85%;--mobile-w:14.65%;--h:98%;--delay:1.23s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:55.50%;--w:13.30%;--mobile-w:15.20%;--h:92%;--delay:1.30s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:61.25%;--w:13.75%;--mobile-w:15.75%;--h:99%;--delay:1.37s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:67.00%;--w:12.85%;--mobile-w:14.65%;--h:93%;--delay:1.44s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:72.75%;--w:13.30%;--mobile-w:15.20%;--h:100%;--delay:1.51s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:78.50%;--w:13.75%;--mobile-w:15.75%;--h:94%;--delay:1.58s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:84.25%;--w:12.85%;--mobile-w:14.65%;--h:88%;--delay:1.65s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:90.00%;--w:13.30%;--mobile-w:15.20%;--h:95%;--delay:1.72s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:95.75%;--w:13.75%;--mobile-w:15.75%;--h:89%;--delay:1.79s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+    </div>
+    <div class="flower-row flower-row-6 flower-row-near" aria-hidden="true">
+      <span class="flower-item palette-pink" style="--x:-2.00%;--w:14.35%;--mobile-w:16.25%;--h:90%;--delay:0.36s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:3.75%;--w:14.80%;--mobile-w:16.70%;--h:97%;--delay:0.43s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:9.50%;--w:15.25%;--mobile-w:17.15%;--h:91%;--delay:0.50s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:15.25%;--w:14.35%;--mobile-w:16.25%;--h:98%;--delay:0.57s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:21.00%;--w:14.80%;--mobile-w:16.70%;--h:92%;--delay:0.64s"><svg viewBox="0 0 100 230"><use href="#sunflowerFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:26.75%;--w:15.25%;--mobile-w:17.15%;--h:99%;--delay:0.71s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:32.50%;--w:14.35%;--mobile-w:16.25%;--h:93%;--delay:0.78s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:38.25%;--w:14.80%;--mobile-w:16.70%;--h:100%;--delay:0.85s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:44.00%;--w:15.25%;--mobile-w:17.15%;--h:94%;--delay:0.92s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:49.75%;--w:14.35%;--mobile-w:16.25%;--h:88%;--delay:0.99s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:55.50%;--w:14.80%;--mobile-w:16.70%;--h:95%;--delay:1.06s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:61.25%;--w:15.25%;--mobile-w:17.15%;--h:89%;--delay:1.13s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:67.00%;--w:14.35%;--mobile-w:16.25%;--h:96%;--delay:1.20s"><svg viewBox="0 0 100 230"><use href="#sunflowerFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:72.75%;--w:14.80%;--mobile-w:16.70%;--h:90%;--delay:1.27s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-yellow" style="--x:78.50%;--w:15.25%;--mobile-w:17.15%;--h:97%;--delay:1.34s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:84.25%;--w:14.35%;--mobile-w:16.25%;--h:91%;--delay:1.41s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:90.00%;--w:14.80%;--mobile-w:16.70%;--h:98%;--delay:1.48s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <span class="flower-item palette-blush" style="--x:95.75%;--w:15.25%;--mobile-w:17.15%;--h:92%;--delay:1.55s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+    </div>
+    <div class="flower-row flower-row-7 flower-row-near flower-row-foreground">
+      <span class="flower-item palette-pink" style="--x:-2.00%;--w:15.85%;--mobile-w:17.85%;--h:93%;--delay:0.12s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:3.75%;--w:16.30%;--mobile-w:18.30%;--h:100%;--delay:0.19s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <button type="button" class="flower-item memory-flower-trigger palette-blush" data-memory-flower data-memory-index="0" style="--x:9.50%;--w:16.75%;--mobile-w:18.75%;--h:94%;--delay:0.26s" aria-label="Mở kỷ niệm 1"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></button>
+      <span class="flower-item palette-blush" style="--x:15.25%;--w:15.85%;--mobile-w:17.85%;--h:88%;--delay:0.33s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:21.00%;--w:16.30%;--mobile-w:18.30%;--h:95%;--delay:0.40s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:26.75%;--w:16.75%;--mobile-w:18.75%;--h:89%;--delay:0.47s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <button type="button" class="flower-item memory-flower-trigger palette-pink" data-memory-flower data-memory-index="1" disabled style="--x:32.50%;--w:15.85%;--mobile-w:17.85%;--h:96%;--delay:0.54s" aria-label="Mở kỷ niệm 2 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></button>
+      <span class="flower-item palette-pink" style="--x:38.25%;--w:16.30%;--mobile-w:18.30%;--h:90%;--delay:0.61s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:44.00%;--w:16.75%;--mobile-w:18.75%;--h:97%;--delay:0.68s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <button type="button" class="flower-item memory-flower-trigger palette-coral" data-memory-flower data-memory-index="2" disabled style="--x:49.75%;--w:15.85%;--mobile-w:17.85%;--h:91%;--delay:0.75s" aria-label="Mở kỷ niệm 3 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></button>
+      <span class="flower-item palette-white" style="--x:55.50%;--w:16.30%;--mobile-w:18.30%;--h:98%;--delay:0.82s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-pink" style="--x:61.25%;--w:16.75%;--mobile-w:18.75%;--h:92%;--delay:0.89s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
+      <span class="flower-item palette-red" style="--x:67.00%;--w:15.85%;--mobile-w:17.85%;--h:99%;--delay:0.96s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:72.75%;--w:16.30%;--mobile-w:18.30%;--h:93%;--delay:1.03s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+      <span class="flower-item palette-coral" style="--x:78.50%;--w:16.75%;--mobile-w:18.75%;--h:100%;--delay:1.10s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
+      <button type="button" class="flower-item memory-flower-trigger palette-purple" data-memory-flower data-memory-index="3" disabled style="--x:84.25%;--w:15.85%;--mobile-w:17.85%;--h:94%;--delay:1.17s" aria-label="Mở kỷ niệm 4 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></button>
+      <span class="flower-item palette-blush" style="--x:90.00%;--w:16.30%;--mobile-w:18.30%;--h:88%;--delay:1.24s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
+      <span class="flower-item palette-white" style="--x:95.75%;--w:16.75%;--mobile-w:18.75%;--h:95%;--delay:1.31s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
+    </div>
+    </div>
+
+    <aside class="flower-note-card" id="flowerNote" role="dialog" aria-modal="false" aria-labelledby="flowerNoteTitle" aria-describedby="flowerNoteMessage" tabindex="-1" hidden>
+      <button class="flower-note-close" type="button" data-close-flower-note aria-label="Đóng lời nhắn">×</button>
+      <div class="memory-bloom palette-white" id="memoryBloom" aria-hidden="true"><svg viewBox="0 0 100 230"><use href="#daisyFlower" id="memoryBloomShape" /></svg></div>
+      <p class="flower-note-kicker" id="flowerNoteKicker">CHUỖI KỶ NIỆM · 1 / 4</p>
+      <h2 id="flowerNoteTitle">Kỷ niệm 1</h2>
+      <p class="flower-note-message" id="flowerNoteMessage">Nội dung kỷ niệm sẽ được thêm sau.</p>
+      <p class="flower-note-hint">Đóng thẻ rồi chạm một đóa hoa khác để mở kỷ niệm khác.</p>
+    </aside>
+    <a class="continue-link" href="#letterPage">Đến trang bức thư <span aria-hidden="true">→</span></a>
+  </section>
+  </details>
+
+  <section class="screen letter-screen" id="letterScreen" aria-labelledby="letterTitle">
+    <a class="letter-back" href="#gardenPage"><span aria-hidden="true">←</span> Vườn hoa</a>
+    <div class="letter-wrap">
+      <header class="letter-heading">
+        <p class="eyebrow">MỘT ĐIỀU NHỎ MUỐN GỬI BẠN</p>
+        <h1 id="letterTitle">Một lá thư đang chờ mở</h1>
+        <p>Chạm vào phong thư để đọc lời nhắn.</p>
+      </header>
+
+      <details class="letter-box" id="messageLetter">
+        <summary class="envelope-trigger">
+          <div class="envelope-scene" aria-hidden="true">
+            <div class="letter-pocket"><div class="letter-card"></div></div>
+            <div class="envelope"><div class="envelope-front"></div><div class="seal">✿</div></div>
+          </div>
+          <span class="envelope-label closed-envelope-label">Bấm để mở bức thư <span aria-hidden="true">✧</span></span>
+          <span class="envelope-label open-envelope-label">Gấp thư lại</span>
+        </summary>
+        <article class="letter-paper">
+          <p class="paper-mark">Một lời nhắn từ trái tim</p>
+          <p class="letter-salutation">Gửi bạn,</p>
+          <p class="message-placeholder">Lời nhắn của bạn sẽ được đặt ở đây.<br>Khi sẵn sàng, hãy gửi mình nội dung — mình sẽ giúp bạn trình bày thành một bức thư thật đẹp.</p>
+          <p class="letter-signoff">Thân thương,</p>
+        </article>
+      </details>
+      <p class="letter-footnote">Đây là chỗ giữ lời nhắn tạm thời; mình sẽ thay bằng nội dung bạn gửi sau.</p>
+    </div>
+  </section>
+  <script>
+    (() => {
+      const memoryFlowers = [...document.querySelectorAll("[data-memory-flower]")]
+        .sort((a, b) => Number(a.dataset.memoryIndex) - Number(b.dataset.memoryIndex));
+      const flowerNote = document.getElementById("flowerNote");
+      const memoryBloom = document.getElementById("memoryBloom");
+      const memoryBloomShape = document.getElementById("memoryBloomShape");
+      const flowerNoteKicker = document.getElementById("flowerNoteKicker");
+      const flowerNoteTitle = document.getElementById("flowerNoteTitle");
+      const flowerNoteMessage = document.getElementById("flowerNoteMessage");
+      const closeFlowerNote = document.querySelector("[data-close-flower-note]");
+      const messageLetter = document.getElementById("messageLetter");
+      const flowerGarden = document.getElementById("flowerGarden");
+      const gardenCover = document.querySelector(".garden-cover");
+      const letterPageAnchor = document.getElementById("letterPage");
+      const letterLink = document.querySelector('.continue-link[href="#letterPage"]');
+      const gardenBackLink = document.querySelector('.letter-back[href="#gardenPage"]');
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const coverMusic = new Audio("assets/audio/cover-soft-piano.mp3");
+      coverMusic.loop = true;
+      coverMusic.volume = 0.32;
+      const letterTracks = [
+        "assets/audio/gentle-love-piano-music.mp3",
+        "assets/audio/love-piano-emotional.mp3",
+      ];
+      const memoryFlowerSequence = [
+        { symbol: "daisyFlower", palette: "palette-white", effect: "bloom", message: "Nội dung kỷ niệm sẽ được thêm sau." },
+        { symbol: "tulipFlower", palette: "palette-pink", effect: "unfurl", message: "Nội dung kỷ niệm sẽ được thêm sau." },
+        { symbol: "poppyFlower", palette: "palette-coral", effect: "sparkle", message: "Nội dung kỷ niệm sẽ được thêm sau." },
+        { symbol: "cosmosFlower", palette: "palette-purple", effect: "drift", message: "Nội dung kỷ niệm sẽ được thêm sau." },
+      ];
+      const soundEnabled = true;
+      let audioContext;
+      let activeMemoryFlower = null;
+      let highestOpenedMemory = -1;
+      let gardenSoundscapeActive = false;
+      let gardenBusGain;
+      let gardenBreeze;
+      let gardenTimers = [];
+      let letterMusic;
+      let letterTrackIndex = 0;
+      let playingTrackIndex = -1;
+      let coverFadeFrame = 0;
+
+      function startCoverMusic() {
+        if (!soundEnabled || flowerGarden?.open || isLetterScreen()) return;
+        if (coverFadeFrame) cancelAnimationFrame(coverFadeFrame);
+        coverFadeFrame = 0;
+        coverMusic.volume = 0.32;
+        if (!coverMusic.paused) return;
+        coverMusic.play().catch(() => {
+          // Browsers that block autoplay retry when the viewer first taps or presses a key.
+        });
+      }
+
+      function fadeOutCoverMusic(duration = 0) {
+        if (coverFadeFrame) cancelAnimationFrame(coverFadeFrame);
+        coverFadeFrame = 0;
+        if (coverMusic.paused) return;
+        const startingVolume = coverMusic.volume;
+        if (duration <= 0) {
+          coverMusic.pause();
+          coverMusic.currentTime = 0;
+          coverMusic.volume = 0.32;
+          return;
+        }
+        const startTime = performance.now();
+        const fade = (time) => {
+          const progress = Math.min(1, (time - startTime) / duration);
+          coverMusic.volume = startingVolume * (1 - progress);
+          if (progress < 1) coverFadeFrame = requestAnimationFrame(fade);
+          else {
+            coverMusic.pause();
+            coverMusic.currentTime = 0;
+            coverMusic.volume = 0.32;
+            coverFadeFrame = 0;
+          }
+        };
+        coverFadeFrame = requestAnimationFrame(fade);
+      }
+
+      async function playChime() {
+        if (!soundEnabled || !AudioContextClass) return;
+        try {
+          audioContext ||= new AudioContextClass();
+          if (audioContext.state === "suspended") await audioContext.resume();
+          if (!soundEnabled) return;
+          const notes = [523.25, 659.25, 783.99];
+          const now = audioContext.currentTime;
+          notes.forEach((frequency, index) => {
+            const start = now + index * 0.14;
+            const oscillator = audioContext.createOscillator();
+            const volume = audioContext.createGain();
+            oscillator.type = "sine";
+            oscillator.frequency.setValueAtTime(frequency, start);
+            volume.gain.setValueAtTime(0.0001, start);
+            volume.gain.exponentialRampToValueAtTime(0.035, start + 0.035);
+            volume.gain.exponentialRampToValueAtTime(0.0001, start + 0.48);
+            oscillator.connect(volume);
+            volume.connect(audioContext.destination);
+            oscillator.start(start);
+            oscillator.stop(start + 0.5);
+          });
+        } catch (error) { /* Keep audio enabled; a later user gesture can resume it. */ }
+      }
+
+      function birdChirp(bus, start, fromPitch, peakPitch, chirpLength, loudness = 0.018) {
+        const bird = audioContext.createOscillator();
+        const birdVolume = audioContext.createGain();
+        bird.type = "sine";
+        bird.frequency.setValueAtTime(fromPitch, start);
+        bird.frequency.exponentialRampToValueAtTime(peakPitch, start + chirpLength * 0.42);
+        bird.frequency.exponentialRampToValueAtTime(fromPitch * 0.82, start + chirpLength);
+        birdVolume.gain.setValueAtTime(0.0001, start);
+        birdVolume.gain.exponentialRampToValueAtTime(loudness, start + 0.025);
+        birdVolume.gain.exponentialRampToValueAtTime(0.0001, start + chirpLength);
+        bird.connect(birdVolume);
+        birdVolume.connect(bus);
+        bird.start(start);
+        bird.stop(start + chirpLength + 0.015);
+      }
+
+      function playBirdPhrase(bus, start = audioContext.currentTime + 0.02) {
+        const phrases = [
+          [[0, 2050, 3150, 0.18], [0.25, 2350, 3500, 0.16], [0.52, 1950, 2850, 0.2]],
+          [[0, 2650, 3900, 0.15], [0.2, 2250, 3350, 0.17], [0.46, 2850, 4200, 0.19]],
+          [[0, 1850, 2700, 0.2], [0.3, 2200, 3300, 0.15]],
+        ];
+        const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+        phrase.forEach(([delay, from, peak, length]) => birdChirp(bus, start + delay, from, peak, length));
+      }
+
+      function makeNatureNoise(duration) {
+        const count = Math.floor(audioContext.sampleRate * duration);
+        const buffer = audioContext.createBuffer(1, count, audioContext.sampleRate);
+        const samples = buffer.getChannelData(0);
+        let softened = 0;
+        const fadeSamples = Math.floor(audioContext.sampleRate * 0.35);
+        for (let index = 0; index < count; index += 1) {
+          softened = softened * 0.965 + (Math.random() * 2 - 1) * 0.035;
+          const edgeFade = Math.min(1, index / fadeSamples, (count - 1 - index) / fadeSamples);
+          samples[index] = softened * 5 * Math.max(0, edgeFade);
+        }
+        return buffer;
+      }
+
+      function playLeafRustle() {
+        if (!gardenSoundscapeActive || !gardenBusGain) return;
+        const now = audioContext.currentTime + 0.02;
+        const source = audioContext.createBufferSource();
+        const filter = audioContext.createBiquadFilter();
+        const volume = audioContext.createGain();
+        source.buffer = makeNatureNoise(2.8);
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1250, now);
+        filter.frequency.exponentialRampToValueAtTime(2600, now + 1.25);
+        filter.Q.value = 0.45;
+        volume.gain.setValueAtTime(0.0001, now);
+        volume.gain.exponentialRampToValueAtTime(0.095, now + 0.6);
+        volume.gain.setValueAtTime(0.065, now + 1.35);
+        volume.gain.exponentialRampToValueAtTime(0.0001, now + 2.75);
+        source.connect(filter);
+        filter.connect(volume);
+        volume.connect(gardenBusGain);
+        source.start(now);
+        source.stop(now + 2.82);
+      }
+
+      function scheduleGardenCue(callback, minimum, maximum) {
+        const timer = window.setTimeout(() => {
+          gardenTimers = gardenTimers.filter((pending) => pending !== timer);
+          if (!gardenSoundscapeActive || !soundEnabled) return;
+          callback();
+          scheduleGardenCue(callback, minimum, maximum);
+        }, minimum + Math.random() * (maximum - minimum));
+        gardenTimers.push(timer);
+      }
+
+      async function playGardenEntrance() {
+        if (!soundEnabled || !AudioContextClass || !gardenBusGain) return;
+        const start = audioContext.currentTime + 0.04;
+        const duration = 5.1;
+        const breezeBuffer = makeNatureNoise(duration);
+        const breeze = audioContext.createBufferSource();
+        const breezeFilter = audioContext.createBiquadFilter();
+        const breezeVolume = audioContext.createGain();
+        breeze.buffer = breezeBuffer;
+        breezeFilter.type = "lowpass";
+        breezeFilter.frequency.setValueAtTime(420, start);
+        breezeFilter.frequency.exponentialRampToValueAtTime(1700, start + 2.25);
+        breezeFilter.frequency.exponentialRampToValueAtTime(760, start + duration);
+        breezeVolume.gain.setValueAtTime(0.0001, start);
+        breezeVolume.gain.exponentialRampToValueAtTime(0.16, start + 1.1);
+        breezeVolume.gain.setValueAtTime(0.11, start + 2.4);
+        breezeVolume.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        breeze.connect(breezeFilter);
+        breezeFilter.connect(breezeVolume);
+        breezeVolume.connect(gardenBusGain);
+        breeze.start(start);
+        breeze.stop(start + duration + 0.02);
+
+        const bloom = audioContext.createOscillator();
+        const bloomVolume = audioContext.createGain();
+        bloom.type = "sine";
+        bloom.frequency.setValueAtTime(275, start + 0.12);
+        bloom.frequency.exponentialRampToValueAtTime(820, start + 2.1);
+        bloomVolume.gain.setValueAtTime(0.0001, start + 0.12);
+        bloomVolume.gain.exponentialRampToValueAtTime(0.055, start + 0.85);
+        bloomVolume.gain.exponentialRampToValueAtTime(0.0001, start + 3.45);
+        bloom.connect(bloomVolume);
+        bloomVolume.connect(gardenBusGain);
+        bloom.start(start + 0.12);
+        bloom.stop(start + 3.5);
+
+        [[0.75, 659.25], [1.35, 783.99], [1.95, 987.77], [2.6, 1174.66], [3.35, 987.77]].forEach(([delay, frequency]) => {
+          const sparkle = audioContext.createOscillator();
+          const sparkleVolume = audioContext.createGain();
+          sparkle.type = "sine";
+          sparkle.frequency.setValueAtTime(frequency, start + delay);
+          sparkleVolume.gain.setValueAtTime(0.0001, start + delay);
+          sparkleVolume.gain.exponentialRampToValueAtTime(0.032, start + delay + 0.04);
+          sparkleVolume.gain.exponentialRampToValueAtTime(0.0001, start + delay + 1.05);
+          sparkle.connect(sparkleVolume);
+          sparkleVolume.connect(gardenBusGain);
+          sparkle.start(start + delay);
+          sparkle.stop(start + delay + 1.08);
+        });
+
+        [[1.05, 2150, 3200, 0.18], [1.38, 2350, 3500, 0.16], [1.72, 1950, 2900, 0.2],
+          [3.35, 2700, 3900, 0.17], [3.7, 2450, 3600, 0.16], [4.05, 2850, 4150, 0.2]]
+          .forEach(([delay, from, peak, length]) => birdChirp(gardenBusGain, start + delay, from, peak, length, 0.026));
+      }
+
+      async function startGardenSoundscape(withEntrance = false) {
+        if (!soundEnabled || !AudioContextClass || gardenSoundscapeActive) return;
+        gardenSoundscapeActive = true;
+        try {
+          audioContext ||= new AudioContextClass();
+          if (audioContext.state === "suspended") await audioContext.resume();
+          if (!soundEnabled || !gardenSoundscapeActive) return;
+
+          gardenBusGain = audioContext.createGain();
+          gardenBusGain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+          gardenBusGain.gain.exponentialRampToValueAtTime(0.72, audioContext.currentTime + 0.9);
+          gardenBusGain.connect(audioContext.destination);
+
+          gardenBreeze = audioContext.createBufferSource();
+          const breezeFilter = audioContext.createBiquadFilter();
+          const breezeVolume = audioContext.createGain();
+          gardenBreeze.buffer = makeNatureNoise(8);
+          gardenBreeze.loop = true;
+          breezeFilter.type = "lowpass";
+          breezeFilter.frequency.value = 920;
+          breezeVolume.gain.setValueAtTime(0.0001, audioContext.currentTime);
+          breezeVolume.gain.exponentialRampToValueAtTime(0.045, audioContext.currentTime + 1.8);
+          gardenBreeze.connect(breezeFilter);
+          breezeFilter.connect(breezeVolume);
+          breezeVolume.connect(gardenBusGain);
+          gardenBreeze.start();
+
+          if (withEntrance) {
+            playGardenEntrance();
+            playLeafRustle();
+          }
+          else playBirdPhrase(gardenBusGain);
+          scheduleGardenCue(() => playBirdPhrase(gardenBusGain), 3600, 6200);
+        } catch (error) {
+          gardenSoundscapeActive = false;
+        }
+      }
+
+      function stopGardenSoundscape() {
+        gardenSoundscapeActive = false;
+        gardenTimers.forEach((timer) => window.clearTimeout(timer));
+        gardenTimers = [];
+        if (gardenBusGain && audioContext) {
+          const now = audioContext.currentTime;
+          gardenBusGain.gain.cancelScheduledValues(now);
+          gardenBusGain.gain.setValueAtTime(Math.max(gardenBusGain.gain.value, 0.0001), now);
+          gardenBusGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+          const breezeToStop = gardenBreeze;
+          window.setTimeout(() => {
+            try { breezeToStop?.stop(); } catch (error) { /* already stopped */ }
+          }, 500);
+        }
+        gardenBreeze = null;
+        gardenBusGain = null;
+      }
+
+      function isLetterScreen() {
+        return Boolean(letterPageAnchor?.matches(":target"));
+      }
+
+      function stopLetterMusic() {
+        if (!letterMusic) return;
+        letterMusic.pause();
+        letterMusic.currentTime = 0;
+        playingTrackIndex = -1;
+      }
+
+      function playLetterPlaylistTrack(fromNavigationClick = false) {
+        if (!soundEnabled || (!isLetterScreen() && !fromNavigationClick)) return;
+        if (playingTrackIndex === letterTrackIndex && letterMusic.src && !letterMusic.paused) return;
+        if (playingTrackIndex !== letterTrackIndex || !letterMusic.src) {
+          letterMusic.loop = false;
+          letterMusic.volume = 0.48;
+          letterMusic.src = letterTracks[letterTrackIndex];
+          playingTrackIndex = letterTrackIndex;
+        }
+        letterMusic.play().catch(() => {
+          /* Retry after a user gesture when the browser blocks autoplay. */
+        });
+      }
+
+      function syncScreenSound() {
+        if (isLetterScreen()) {
+          fadeOutCoverMusic();
+          stopGardenSoundscape();
+          if (soundEnabled) playLetterPlaylistTrack();
+          return;
+        }
+        stopLetterMusic();
+        if (flowerGarden?.open && soundEnabled) {
+          fadeOutCoverMusic(1400);
+          startGardenSoundscape(true);
+        } else {
+          stopGardenSoundscape();
+          startCoverMusic();
+        }
+      }
+
+      gardenCover?.addEventListener("click", () => {
+        fadeOutCoverMusic(1800);
+        startGardenSoundscape(true);
+      });
+      flowerGarden?.addEventListener("toggle", () => {
+        if (flowerGarden.open && !isLetterScreen() && soundEnabled) {
+          fadeOutCoverMusic(1800);
+          startGardenSoundscape(true);
+        } else if (!flowerGarden.open) {
+          stopGardenSoundscape();
+          startCoverMusic();
+        }
+      });
+
+      letterMusic = new Audio();
+      letterMusic.addEventListener("ended", () => {
+        letterTrackIndex = (letterTrackIndex + 1) % letterTracks.length;
+        playLetterPlaylistTrack();
+      });
+      letterLink?.addEventListener("click", () => {
+        if (soundEnabled) {
+          fadeOutCoverMusic();
+          stopGardenSoundscape();
+          playLetterPlaylistTrack(true);
+        }
+      });
+      gardenBackLink?.addEventListener("click", () => {
+        if (soundEnabled) {
+          stopLetterMusic();
+          startGardenSoundscape(true);
+        }
+      });
+      window.addEventListener("hashchange", syncScreenSound);
+
+      const resumeAudioForCurrentScreen = () => {
+        if (isLetterScreen()) playLetterPlaylistTrack();
+        else if (flowerGarden?.open) startGardenSoundscape(false);
+        else startCoverMusic();
+      };
+      document.addEventListener("pointerdown", resumeAudioForCurrentScreen, true);
+      document.addEventListener("keydown", resumeAudioForCurrentScreen, true);
+
+      function hideFlowerNote(returnFocus = true) {
+        if (flowerNote.hidden) return;
+        flowerNote.hidden = true;
+        activeMemoryFlower?.classList.remove("is-awake");
+        if (returnFocus) activeMemoryFlower?.focus({ preventScroll: true });
+        activeMemoryFlower = null;
+      }
+
+      memoryFlowers.forEach((flower, index) => flower.addEventListener("click", () => {
+        if (!flowerNote.hidden || flower.disabled) return;
+        highestOpenedMemory = Math.max(highestOpenedMemory, index);
+        memoryFlowers.forEach((candidate, candidateIndex) => {
+          const unlocked = candidateIndex <= highestOpenedMemory + 1;
+          candidate.disabled = !unlocked;
+          candidate.setAttribute("aria-label", unlocked
+            ? `Mở kỷ niệm ${candidateIndex + 1}`
+            : `Mở kỷ niệm ${candidateIndex + 1} sau khi mở hoa trước`);
+        });
+        const memoryFlower = memoryFlowerSequence[index];
+        memoryBloom.className = `memory-bloom ${memoryFlower.palette}`;
+        memoryBloom.dataset.effect = memoryFlower.effect;
+        flowerNote.dataset.effect = memoryFlower.effect;
+        memoryBloomShape.setAttribute("href", `#${memoryFlower.symbol}`);
+        flowerNoteKicker.textContent = `CHUỖI KỶ NIỆM · ${index + 1} / ${memoryFlowerSequence.length}`;
+        flowerNoteTitle.textContent = `Kỷ niệm ${index + 1}`;
+        flowerNoteMessage.textContent = memoryFlower.message;
+        flowerNote.hidden = false;
+        activeMemoryFlower = flower;
+        flower.classList.add("is-awake");
+        flowerNote.focus({ preventScroll: true });
+        playChime();
+      }));
+      closeFlowerNote?.addEventListener("click", () => hideFlowerNote());
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && flowerNote && !flowerNote.hidden) hideFlowerNote();
+      });
+      messageLetter?.addEventListener("toggle", () => {
+        if (messageLetter.open) playChime();
+      });
+      syncScreenSound();
+    })();
+  </script>
+</body>
+</html>
