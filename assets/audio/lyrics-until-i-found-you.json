@@ -1,0 +1,194 @@
+[
+  {
+    "id": 1,
+    "start": 12.21,
+    "end": 13.64,
+    "duration": 1.43,
+    "text": "Bé àaaaaaaa",
+    "raw": "GEORGIA"
+  },
+  {
+    "id": 2,
+    "start": 15.25,
+    "end": 18.22,
+    "duration": 2.97,
+    "text": "Wrap me up in all your...",
+    "raw": "WRAP ME UP IN ALL YOUR"
+  },
+  {
+    "id": 3,
+    "start": 18.72,
+    "end": 24.06,
+    "duration": 5.34,
+    "text": "I want you in my arms",
+    "raw": "I WANT YOU IN MY ARMS"
+  },
+  {
+    "id": 4,
+    "start": 24.12,
+    "end": 27.36,
+    "duration": 3.24,
+    "text": "Oh, let me hold you",
+    "raw": "OH, LET ME HOLD YOU"
+  },
+  {
+    "id": 5,
+    "start": 29.6,
+    "end": 35.04,
+    "duration": 5.44,
+    "text": "I'll never let you go again like I did",
+    "raw": "I'LL NEVER LET YOU GO AGAIN LIKE I DID"
+  },
+  {
+    "id": 6,
+    "start": 35.47,
+    "end": 38.37,
+    "duration": 2.9,
+    "text": "Oh, I used to say",
+    "raw": "OH, I USED TO SAY"
+  },
+  {
+    "id": 7,
+    "start": 39.04,
+    "end": 45.71,
+    "duration": 6.67,
+    "text": "I would never fall in love again until I found her",
+    "raw": "I WOULD NEVER FALL IN LOVE AGAIN UNTIL I FOUND HER"
+  },
+  {
+    "id": 8,
+    "start": 46.45,
+    "end": 53.09,
+    "duration": 6.64,
+    "text": "I said I would never fall unless it's you I fall into",
+    "raw": "I SAID I WOULD NEVER FALL UNLESS IT'S YOU I FALL INTO"
+  },
+  {
+    "id": 9,
+    "start": 53.79,
+    "end": 60.33,
+    "duration": 6.54,
+    "text": "I was lost within the darkness, but then I found her",
+    "raw": "I WAS LOST WITHIN THE DARKNESS BUT THEN I FOUND HER"
+  },
+  {
+    "id": 10,
+    "start": 60.69,
+    "end": 65.86,
+    "duration": 5.17,
+    "text": "I found you",
+    "raw": "I FOUND YOU"
+  },
+  {
+    "id": 11,
+    "start": 70.27,
+    "end": 71.57,
+    "duration": 1.3,
+    "text": "Bé àaaaaa",
+    "raw": "GEORGIA"
+  },
+  {
+    "id": 12,
+    "start": 73.24,
+    "end": 74.94,
+    "duration": 1.7,
+    "text": "Pulled me in",
+    "raw": "PULLED ME IN"
+  },
+  {
+    "id": 13,
+    "start": 75.01,
+    "end": 81.98,
+    "duration": 6.97,
+    "text": "I asked to love her once again",
+    "raw": "I ASKED TO LOVE HER ONCE AGAIN"
+  },
+  {
+    "id": 14,
+    "start": 82.05,
+    "end": 85.45,
+    "duration": 3.4,
+    "text": "You fell, I caught you",
+    "raw": "YOU FELL, I CAUGHT YOU"
+  },
+  {
+    "id": 15,
+    "start": 87.32,
+    "end": 92.86,
+    "duration": 5.54,
+    "text": "I'll never let you go again, oh, like I did",
+    "raw": "I'LL NEVER LET YOU GO AGAIN, OH, LIKE I DID"
+  },
+  {
+    "id": 16,
+    "start": 93.29,
+    "end": 96.49,
+    "duration": 3.2,
+    "text": "Oh, I used to say",
+    "raw": "OH, I USED TO SAY"
+  },
+  {
+    "id": 17,
+    "start": 96.86,
+    "end": 103.57,
+    "duration": 6.71,
+    "text": "I would never fall in love again until I found her",
+    "raw": "I WOULD NEVER FALL IN LOVE AGAIN UNTIL I FOUND HER"
+  },
+  {
+    "id": 18,
+    "start": 104.07,
+    "end": 110.88,
+    "duration": 6.81,
+    "text": "I said I would never fall unless it's you I fall into",
+    "raw": "I SAID I WOULD NEVER FALL UNLESS IT'S YOU I FALL INTO"
+  },
+  {
+    "id": 19,
+    "start": 111.28,
+    "end": 118.15,
+    "duration": 6.87,
+    "text": "I was lost within the darkness, but then I found her",
+    "raw": "I WAS LOST WITHIN THE DARKNESS BUT THEN I FOUND HER"
+  },
+  {
+    "id": 20,
+    "start": 118.22,
+    "end": 123.29,
+    "duration": 5.07,
+    "text": "I found you",
+    "raw": "I FOUND YOU"
+  },
+  {
+    "id": 21,
+    "start": 139.44,
+    "end": 145.91,
+    "duration": 6.47,
+    "text": "I would never fall in love again until I found her",
+    "raw": "I WOULD NEVER FALL IN LOVE AGAIN UNTIL I FOUND HER"
+  },
+  {
+    "id": 22,
+    "start": 146.28,
+    "end": 153.02,
+    "duration": 6.74,
+    "text": "I said I would never fall unless it's you I fall into",
+    "raw": "I SAID I WOULD NEVER FALL UNLESS IT'S YOU I FALL INTO"
+  },
+  {
+    "id": 23,
+    "start": 153.42,
+    "end": 160.09,
+    "duration": 6.67,
+    "text": "I was lost within the darkness, but then I found her",
+    "raw": "I WAS LOST WITHIN THE DARKNESS BUT THEN I FOUND HER"
+  },
+  {
+    "id": 24,
+    "start": 160.19,
+    "end": 165.33,
+    "duration": 5.14,
+    "text": "I found you",
+    "raw": "I FOUND YOU"
+  }
+]

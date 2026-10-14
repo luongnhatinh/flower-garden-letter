@@ -26,6 +26,14 @@
       background: var(--night);
     }
 
+    :fullscreen,
+    :-webkit-full-screen {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--night);
+    }
+
     .page-anchor { position: fixed; top: 0; left: 0; width: 1px; height: 1px; pointer-events: none; }
     .screen { position: fixed; inset: 0; display: none; overflow: hidden; }
     #flowerGarden { position: fixed; inset: 0; z-index: 2; display: block; }
@@ -43,7 +51,8 @@
       display: grid;
       place-items: center;
       padding: 28px;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       list-style: none;
       text-align: center;
       cursor: pointer;
@@ -65,7 +74,7 @@
     .cover-card { position: relative; z-index: 1; width: min(100%, 620px); pointer-events: none; }
     .cover-flower { display: block; width: 102px; height: 102px; margin: 0 auto 27px; filter: drop-shadow(0 0 28px rgba(255, 187, 216, .45)); animation: cover-breathe 3s ease-in-out infinite; }
     .cover-kicker { margin: 0 0 13px; color: #ead0df; font-size: .68rem; font-weight: 600; letter-spacing: .29em; text-transform: uppercase; }
-    .cover-title { margin: 0; color: #fff5e9; font: 400 clamp(2.1rem, 6vw, 4.4rem)/1.06 Georgia, "Times New Roman", serif; letter-spacing: -.04em; text-wrap: balance; }
+    .cover-title { margin: 0; color: #fff5e9; font-family: "Segoe UI", Arial, sans-serif; font-weight: 600; font-size: clamp(2.1rem, 6vw, 4.4rem); line-height: 1.08; letter-spacing: -.03em; text-wrap: balance; }
     .cover-copy { margin: 16px 0 27px; color: rgba(255, 242, 231, .76); font: normal clamp(.96rem, 2vw, 1.12rem) "Segoe UI", Arial, sans-serif; }
     .cover-button {
       display: inline-flex;
@@ -157,6 +166,412 @@
       75% { transform: scale(1.12) rotate(8deg); }
     }
 
+    .cover-lyrics {
+      margin-top: 18px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 230, 220, .24);
+      background: rgba(23, 18, 38, .54);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 32px rgba(11, 8, 23, .28), inset 0 0 18px rgba(255, 255, 255, .03);
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      pointer-events: auto;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity .4s ease, transform .4s ease, border-color .3s ease;
+    }
+    .cover-lyrics:hover {
+      border-color: rgba(255, 230, 220, .45);
+      background: rgba(29, 21, 48, .64);
+    }
+    .lyrics-track-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 5px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(234, 208, 223, .72);
+      transition: color .3s ease;
+    }
+    .lyrics-track-info .lyrics-icon {
+      color: #ffd8dc;
+      font-size: .82rem;
+      display: inline-block;
+      animation: music-note-beat 2.2s infinite ease-in-out;
+    }
+    .lyrics-viewport {
+      position: relative;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lyrics-music-wave {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.15rem;
+      color: #ffe4ad;
+      letter-spacing: .25em;
+      animation: music-note-beat 1.8s ease-in-out infinite;
+    }
+    .lyrics-line {
+      margin: 0;
+      text-align: center;
+      line-height: 1.45;
+      text-wrap: balance;
+    }
+    .lyrics-current {
+      font-size: clamp(1.02rem, 2.5vw, 1.25rem);
+      font-weight: 500;
+      color: #ffe4ad;
+      filter: drop-shadow(0 0 10px rgba(255, 228, 173, .35));
+      transition: transform .25s ease;
+    }
+    .lyrics-fill-text {
+      display: inline-block;
+      background: linear-gradient(90deg, #ffe4ad 0%, #ffe4ad var(--fill, 100%), rgba(255, 245, 233, .38) var(--fill, 100%), rgba(255, 245, 233, .38) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: --fill .06s linear;
+    }
+    .lyrics-next {
+      margin-top: 5px;
+      font-size: clamp(.82rem, 1.8vw, .92rem);
+      color: rgba(255, 242, 231, .42);
+      transition: opacity .35s ease;
+    }
+    .cover-lyrics.is-paused .lyrics-track-info .lyrics-icon {
+      animation: none;
+    }
+    @media (max-height: 740px) {
+      .garden-cover { padding: 18px 16px; overflow-y: auto; }
+      .cover-title { font-size: clamp(1.8rem, 5vw, 2.8rem); }
+      .cover-copy { margin: 10px 0 16px; }
+      .cover-lyrics { margin-top: 14px; padding: 9px 16px; }
+    }
+
+    /* Floating lyrics drifting languidly on both sides */
+    .floating-lyrics-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 25;
+      transition: opacity 1.2s ease;
+    }
+
+    .floating-lyric-item {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      max-width: clamp(200px, 30vw, 380px);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-style: italic;
+      font-size: clamp(0.96rem, 2.2vw, 1.32rem);
+      line-height: 1.35;
+      color: rgba(255, 245, 233, 0.88);
+      background: linear-gradient(135deg, rgba(38, 26, 56, 0.65) 0%, rgba(24, 17, 39, 0.45) 100%);
+      border: 1px solid rgba(255, 225, 215, 0.22);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(11, 8, 23, 0.32), inset 0 0 14px rgba(255, 255, 255, 0.04);
+      user-select: none;
+      pointer-events: none;
+      will-change: transform, opacity, filter;
+      bottom: -60px;
+      transition: border-color .35s ease, box-shadow .35s ease, color .35s ease, background .35s ease;
+    }
+
+    .floating-lyric-item.is-active {
+      color: #fff9ed;
+      border-color: rgba(255, 228, 173, 0.65);
+      background: linear-gradient(135deg, rgba(55, 34, 76, 0.82) 0%, rgba(32, 22, 50, 0.65) 100%);
+      box-shadow: 0 12px 36px rgba(11, 8, 23, 0.4), 0 0 24px rgba(255, 228, 173, 0.45), inset 0 0 16px rgba(255, 228, 173, 0.12);
+      filter: drop-shadow(0 0 12px rgba(255, 228, 173, 0.4));
+    }
+
+    .floating-lyric-item.side-left {
+      left: clamp(16px, 5.5vw, 110px);
+      text-align: left;
+    }
+    .floating-lyric-item.side-right {
+      right: clamp(16px, 5.5vw, 110px);
+      text-align: right;
+      flex-direction: row-reverse;
+    }
+
+    .floating-lyric-symbol {
+      font-size: 0.85em;
+      color: #ffd8dc;
+      flex-shrink: 0;
+      display: inline-block;
+      animation: symbol-twinkle 3.2s ease-in-out infinite alternate;
+    }
+    .floating-lyric-item.is-active .floating-lyric-symbol {
+      color: #ffe4ad;
+      text-shadow: 0 0 10px #ffe4ad;
+    }
+
+    @keyframes symbol-twinkle {
+      0% { transform: scale(0.85) rotate(-10deg); opacity: 0.6; }
+      100% { transform: scale(1.18) rotate(15deg); opacity: 1; }
+    }
+
+    /* Left float 1: 12.5 continuous undulating cycles (doubled frequency), linear ascent without hitches, gentle +-7px drift */
+    .floating-lyric-item.side-left.variant-1 {
+      animation: float-languid-left-1 12.8s linear forwards;
+    }
+    @keyframes float-languid-left-1 {
+      0% { opacity: 0; filter: blur(3px); transform: translate3d(0, 0, 0) scale(0.95); }
+      2% { opacity: 0.65; filter: blur(1px); transform: translate3d(7.0px, -2.4vh, 0) rotate(1.0deg) scale(0.98); }
+      4% { opacity: 0.9; filter: blur(0); transform: translate3d(0px, -4.7vh, 0) rotate(0deg) scale(1); }
+      6% { opacity: 0.98; transform: translate3d(-7.0px, -7.1vh, 0) rotate(-1.0deg); }
+      8% { opacity: 1; transform: translate3d(0px, -9.4vh, 0) rotate(0deg); }
+      10% { transform: translate3d(7.0px, -11.8vh, 0) rotate(1.0deg); }
+      12% { transform: translate3d(0px, -14.2vh, 0) rotate(0deg); }
+      14% { transform: translate3d(-7.0px, -16.5vh, 0) rotate(-1.0deg); }
+      16% { transform: translate3d(0px, -18.9vh, 0) rotate(0deg); }
+      18% { transform: translate3d(7.0px, -21.2vh, 0) rotate(1.0deg); }
+      20% { transform: translate3d(0px, -23.6vh, 0) rotate(0deg); }
+      22% { transform: translate3d(-7.0px, -26.0vh, 0) rotate(-1.0deg); }
+      24% { transform: translate3d(0px, -28.3vh, 0) rotate(0deg); }
+      26% { transform: translate3d(7.0px, -30.7vh, 0) rotate(1.0deg); }
+      28% { transform: translate3d(0px, -33.0vh, 0) rotate(0deg); }
+      30% { transform: translate3d(-7.0px, -35.4vh, 0) rotate(-1.0deg); }
+      32% { transform: translate3d(0px, -37.8vh, 0) rotate(0deg); }
+      34% { transform: translate3d(7.0px, -40.1vh, 0) rotate(1.0deg); }
+      36% { transform: translate3d(0px, -42.5vh, 0) rotate(0deg); }
+      38% { transform: translate3d(-7.0px, -44.8vh, 0) rotate(-1.0deg); }
+      40% { transform: translate3d(0px, -47.2vh, 0) rotate(0deg); }
+      42% { transform: translate3d(7.0px, -49.6vh, 0) rotate(1.0deg); }
+      44% { transform: translate3d(0px, -51.9vh, 0) rotate(0deg); }
+      46% { transform: translate3d(-7.0px, -54.3vh, 0) rotate(-1.0deg); }
+      48% { transform: translate3d(0px, -56.6vh, 0) rotate(0deg); }
+      50% { transform: translate3d(7.0px, -59.0vh, 0) rotate(1.0deg); }
+      52% { transform: translate3d(0px, -61.4vh, 0) rotate(0deg); }
+      54% { transform: translate3d(-7.0px, -63.7vh, 0) rotate(-1.0deg); }
+      56% { transform: translate3d(0px, -66.1vh, 0) rotate(0deg); }
+      58% { transform: translate3d(7.0px, -68.4vh, 0) rotate(1.0deg); }
+      60% { transform: translate3d(0px, -70.8vh, 0) rotate(0deg); }
+      62% { transform: translate3d(-7.0px, -73.2vh, 0) rotate(-1.0deg); }
+      64% { transform: translate3d(0px, -75.5vh, 0) rotate(0deg); }
+      66% { transform: translate3d(7.0px, -77.9vh, 0) rotate(1.0deg); }
+      68% { transform: translate3d(0px, -80.2vh, 0) rotate(0deg); }
+      70% { transform: translate3d(-7.0px, -82.6vh, 0) rotate(-1.0deg); }
+      72% { transform: translate3d(0px, -85.0vh, 0) rotate(0deg); }
+      74% { transform: translate3d(7.0px, -87.3vh, 0) rotate(1.0deg); }
+      76% { transform: translate3d(0px, -89.7vh, 0) rotate(0deg); }
+      78% { transform: translate3d(-7.0px, -92.0vh, 0) rotate(-1.0deg); }
+      80% { transform: translate3d(0px, -94.4vh, 0) rotate(0deg); }
+      82% { transform: translate3d(7.0px, -96.8vh, 0) rotate(1.0deg); }
+      84% { opacity: 0.95; transform: translate3d(0px, -99.1vh, 0) rotate(0deg); }
+      86% { transform: translate3d(-6.6px, -101.5vh, 0) rotate(-1.0deg); }
+      88% { transform: translate3d(0px, -103.8vh, 0) rotate(0deg); }
+      90% { opacity: 0.7; filter: blur(1px); transform: translate3d(6.0px, -106.2vh, 0) rotate(1.0deg); }
+      92% { transform: translate3d(0px, -108.6vh, 0) rotate(0deg); }
+      94% { opacity: 0.38; filter: blur(2.5px); transform: translate3d(-5.2px, -110.9vh, 0) rotate(-1.0deg); }
+      96% { transform: translate3d(0px, -113.3vh, 0) rotate(0deg); }
+      98% { opacity: 0.12; filter: blur(4.5px); transform: translate3d(4.5px, -115.6vh, 0) rotate(1.0deg); }
+      100% { opacity: 0; filter: blur(6px); transform: translate3d(0px, -118.0vh, 0) rotate(0deg) scale(0.92); }
+    }
+
+    /* Left float 2: Counter wave with 13 continuous cycles, slightly different period and +-7.5px amplitude */
+    .floating-lyric-item.side-left.variant-2 {
+      animation: float-languid-left-2 13.4s linear forwards;
+    }
+    @keyframes float-languid-left-2 {
+      0% { opacity: 0; filter: blur(3px); transform: translate3d(0, 0, 0) scale(0.95); }
+      2% { opacity: 0.65; filter: blur(1px); transform: translate3d(-7.5px, -2.4vh, 0) rotate(-1.1deg) scale(0.98); }
+      4% { opacity: 0.9; filter: blur(0); transform: translate3d(0.9px, -4.7vh, 0) rotate(0.1deg) scale(1); }
+      6% { opacity: 0.98; transform: translate3d(7.4px, -7.1vh, 0) rotate(1.1deg); }
+      8% { opacity: 1; transform: translate3d(-1.8px, -9.4vh, 0) rotate(-0.3deg); }
+      10% { transform: translate3d(-7.2px, -11.8vh, 0) rotate(-1.0deg); }
+      12% { transform: translate3d(2.7px, -14.2vh, 0) rotate(0.4deg); }
+      14% { transform: translate3d(6.8px, -16.5vh, 0) rotate(1.0deg); }
+      16% { transform: translate3d(-3.5px, -18.9vh, 0) rotate(-0.5deg); }
+      18% { transform: translate3d(-6.4px, -21.2vh, 0) rotate(-0.9deg); }
+      20% { transform: translate3d(4.3px, -23.6vh, 0) rotate(0.6deg); }
+      22% { transform: translate3d(5.9px, -26.0vh, 0) rotate(0.9deg); }
+      24% { transform: translate3d(-5.0px, -28.3vh, 0) rotate(-0.7deg); }
+      26% { transform: translate3d(-5.2px, -30.7vh, 0) rotate(-0.8deg); }
+      28% { transform: translate3d(5.7px, -33.0vh, 0) rotate(0.8deg); }
+      30% { transform: translate3d(4.6px, -35.4vh, 0) rotate(0.7deg); }
+      32% { transform: translate3d(-6.2px, -37.8vh, 0) rotate(-0.9deg); }
+      34% { transform: translate3d(-3.8px, -40.1vh, 0) rotate(-0.6deg); }
+      36% { transform: translate3d(6.7px, -42.5vh, 0) rotate(1.0deg); }
+      38% { transform: translate3d(3.0px, -44.8vh, 0) rotate(0.4deg); }
+      40% { transform: translate3d(-7.1px, -47.2vh, 0) rotate(-1.0deg); }
+      42% { transform: translate3d(-2.1px, -49.6vh, 0) rotate(-0.3deg); }
+      44% { transform: translate3d(7.3px, -51.9vh, 0) rotate(1.1deg); }
+      46% { transform: translate3d(1.2px, -54.3vh, 0) rotate(0.2deg); }
+      48% { transform: translate3d(-7.5px, -56.6vh, 0) rotate(-1.1deg); }
+      50% { transform: translate3d(-0.3px, -59.0vh, 0) rotate(-0.0deg); }
+      52% { transform: translate3d(7.5px, -61.4vh, 0) rotate(1.1deg); }
+      54% { transform: translate3d(-0.6px, -63.7vh, 0) rotate(-0.1deg); }
+      56% { transform: translate3d(-7.4px, -66.1vh, 0) rotate(-1.1deg); }
+      58% { transform: translate3d(1.5px, -68.4vh, 0) rotate(0.2deg); }
+      60% { transform: translate3d(7.2px, -70.8vh, 0) rotate(1.1deg); }
+      62% { transform: translate3d(-2.4px, -73.2vh, 0) rotate(-0.4deg); }
+      64% { transform: translate3d(-6.9px, -75.5vh, 0) rotate(-1.0deg); }
+      66% { transform: translate3d(3.3px, -77.9vh, 0) rotate(0.5deg); }
+      68% { transform: translate3d(6.5px, -80.2vh, 0) rotate(1.0deg); }
+      70% { transform: translate3d(-4.1px, -82.6vh, 0) rotate(-0.6deg); }
+      72% { transform: translate3d(-6.0px, -85.0vh, 0) rotate(-0.9deg); }
+      74% { transform: translate3d(4.8px, -87.3vh, 0) rotate(0.7deg); }
+      76% { transform: translate3d(5.5px, -89.7vh, 0) rotate(0.8deg); }
+      78% { transform: translate3d(-5.5px, -92.0vh, 0) rotate(-0.8deg); }
+      80% { transform: translate3d(-4.8px, -94.4vh, 0) rotate(-0.7deg); }
+      82% { transform: translate3d(6.0px, -96.8vh, 0) rotate(0.9deg); }
+      84% { opacity: 0.95; transform: translate3d(4.1px, -99.1vh, 0) rotate(0.6deg); }
+      86% { transform: translate3d(-6.2px, -101.5vh, 0) rotate(-1.0deg); }
+      88% { transform: translate3d(-2.9px, -103.8vh, 0) rotate(-0.5deg); }
+      90% { opacity: 0.7; filter: blur(1px); transform: translate3d(5.9px, -106.2vh, 0) rotate(1.0deg); }
+      92% { transform: translate3d(1.9px, -108.6vh, 0) rotate(0.4deg); }
+      94% { opacity: 0.38; filter: blur(2.5px); transform: translate3d(-5.4px, -110.9vh, 0) rotate(-1.1deg); }
+      96% { transform: translate3d(-1.1px, -113.3vh, 0) rotate(-0.2deg); }
+      98% { opacity: 0.12; filter: blur(4.5px); transform: translate3d(4.8px, -115.6vh, 0) rotate(1.1deg); }
+      100% { opacity: 0; filter: blur(6px); transform: translate3d(0px, -118.0vh, 0) rotate(0deg) scale(0.92); }
+    }
+
+    /* Right float 1: 12.5 continuous undulating cycles, mirror phase with smooth drift */
+    .floating-lyric-item.side-right.variant-1 {
+      animation: float-languid-right-1 12.8s linear forwards;
+    }
+    @keyframes float-languid-right-1 {
+      0% { opacity: 0; filter: blur(3px); transform: translate3d(0, 0, 0) scale(0.95); }
+      2% { opacity: 0.65; filter: blur(1px); transform: translate3d(-7.0px, -2.4vh, 0) rotate(-1.0deg) scale(0.98); }
+      4% { opacity: 0.9; filter: blur(0); transform: translate3d(0px, -4.7vh, 0) rotate(0deg) scale(1); }
+      6% { opacity: 0.98; transform: translate3d(7.0px, -7.1vh, 0) rotate(1.0deg); }
+      8% { opacity: 1; transform: translate3d(0px, -9.4vh, 0) rotate(0deg); }
+      10% { transform: translate3d(-7.0px, -11.8vh, 0) rotate(-1.0deg); }
+      12% { transform: translate3d(0px, -14.2vh, 0) rotate(0deg); }
+      14% { transform: translate3d(7.0px, -16.5vh, 0) rotate(1.0deg); }
+      16% { transform: translate3d(0px, -18.9vh, 0) rotate(0deg); }
+      18% { transform: translate3d(-7.0px, -21.2vh, 0) rotate(-1.0deg); }
+      20% { transform: translate3d(0px, -23.6vh, 0) rotate(0deg); }
+      22% { transform: translate3d(7.0px, -26.0vh, 0) rotate(1.0deg); }
+      24% { transform: translate3d(0px, -28.3vh, 0) rotate(0deg); }
+      26% { transform: translate3d(-7.0px, -30.7vh, 0) rotate(-1.0deg); }
+      28% { transform: translate3d(0px, -33.0vh, 0) rotate(0deg); }
+      30% { transform: translate3d(7.0px, -35.4vh, 0) rotate(1.0deg); }
+      32% { transform: translate3d(0px, -37.8vh, 0) rotate(0deg); }
+      34% { transform: translate3d(-7.0px, -40.1vh, 0) rotate(-1.0deg); }
+      36% { transform: translate3d(0px, -42.5vh, 0) rotate(0deg); }
+      38% { transform: translate3d(7.0px, -44.8vh, 0) rotate(1.0deg); }
+      40% { transform: translate3d(0px, -47.2vh, 0) rotate(0deg); }
+      42% { transform: translate3d(-7.0px, -49.6vh, 0) rotate(-1.0deg); }
+      44% { transform: translate3d(0px, -51.9vh, 0) rotate(0deg); }
+      46% { transform: translate3d(7.0px, -54.3vh, 0) rotate(1.0deg); }
+      48% { transform: translate3d(0px, -56.6vh, 0) rotate(0deg); }
+      50% { transform: translate3d(-7.0px, -59.0vh, 0) rotate(-1.0deg); }
+      52% { transform: translate3d(0px, -61.4vh, 0) rotate(0deg); }
+      54% { transform: translate3d(7.0px, -63.7vh, 0) rotate(1.0deg); }
+      56% { transform: translate3d(0px, -66.1vh, 0) rotate(0deg); }
+      58% { transform: translate3d(-7.0px, -68.4vh, 0) rotate(-1.0deg); }
+      60% { transform: translate3d(0px, -70.8vh, 0) rotate(0deg); }
+      62% { transform: translate3d(7.0px, -73.2vh, 0) rotate(1.0deg); }
+      64% { transform: translate3d(0px, -75.5vh, 0) rotate(0deg); }
+      66% { transform: translate3d(-7.0px, -77.9vh, 0) rotate(-1.0deg); }
+      68% { transform: translate3d(0px, -80.2vh, 0) rotate(0deg); }
+      70% { transform: translate3d(7.0px, -82.6vh, 0) rotate(1.0deg); }
+      72% { transform: translate3d(0px, -85.0vh, 0) rotate(0deg); }
+      74% { transform: translate3d(-7.0px, -87.3vh, 0) rotate(-1.0deg); }
+      76% { transform: translate3d(0px, -89.7vh, 0) rotate(0deg); }
+      78% { transform: translate3d(7.0px, -92.0vh, 0) rotate(1.0deg); }
+      80% { transform: translate3d(0px, -94.4vh, 0) rotate(0deg); }
+      82% { transform: translate3d(-7.0px, -96.8vh, 0) rotate(-1.0deg); }
+      84% { opacity: 0.95; transform: translate3d(0px, -99.1vh, 0) rotate(0deg); }
+      86% { transform: translate3d(6.6px, -101.5vh, 0) rotate(1.0deg); }
+      88% { transform: translate3d(0px, -103.8vh, 0) rotate(0deg); }
+      90% { opacity: 0.7; filter: blur(1px); transform: translate3d(-6.0px, -106.2vh, 0) rotate(-1.0deg); }
+      92% { transform: translate3d(0px, -108.6vh, 0) rotate(0deg); }
+      94% { opacity: 0.38; filter: blur(2.5px); transform: translate3d(5.2px, -110.9vh, 0) rotate(1.0deg); }
+      96% { transform: translate3d(0px, -113.3vh, 0) rotate(0deg); }
+      98% { opacity: 0.12; filter: blur(4.5px); transform: translate3d(-4.5px, -115.6vh, 0) rotate(-1.0deg); }
+      100% { opacity: 0; filter: blur(6px); transform: translate3d(0px, -118.0vh, 0) rotate(0deg) scale(0.92); }
+    }
+
+    /* Right float 2: Counter wave with 13 continuous cycles, mirror phase */
+    .floating-lyric-item.side-right.variant-2 {
+      animation: float-languid-right-2 13.4s linear forwards;
+    }
+    @keyframes float-languid-right-2 {
+      0% { opacity: 0; filter: blur(3px); transform: translate3d(0, 0, 0) scale(0.95); }
+      2% { opacity: 0.65; filter: blur(1px); transform: translate3d(7.5px, -2.4vh, 0) rotate(1.1deg) scale(0.98); }
+      4% { opacity: 0.9; filter: blur(0); transform: translate3d(-0.9px, -4.7vh, 0) rotate(-0.1deg) scale(1); }
+      6% { opacity: 0.98; transform: translate3d(-7.4px, -7.1vh, 0) rotate(-1.1deg); }
+      8% { opacity: 1; transform: translate3d(1.8px, -9.4vh, 0) rotate(0.3deg); }
+      10% { transform: translate3d(7.2px, -11.8vh, 0) rotate(1.0deg); }
+      12% { transform: translate3d(-2.7px, -14.2vh, 0) rotate(-0.4deg); }
+      14% { transform: translate3d(-6.8px, -16.5vh, 0) rotate(-1.0deg); }
+      16% { transform: translate3d(3.5px, -18.9vh, 0) rotate(0.5deg); }
+      18% { transform: translate3d(6.4px, -21.2vh, 0) rotate(0.9deg); }
+      20% { transform: translate3d(-4.3px, -23.6vh, 0) rotate(-0.6deg); }
+      22% { transform: translate3d(-5.9px, -26.0vh, 0) rotate(-0.9deg); }
+      24% { transform: translate3d(5.0px, -28.3vh, 0) rotate(0.7deg); }
+      26% { transform: translate3d(5.2px, -30.7vh, 0) rotate(0.8deg); }
+      28% { transform: translate3d(-5.7px, -33.0vh, 0) rotate(-0.8deg); }
+      30% { transform: translate3d(-4.6px, -35.4vh, 0) rotate(-0.7deg); }
+      32% { transform: translate3d(6.2px, -37.8vh, 0) rotate(0.9deg); }
+      34% { transform: translate3d(3.8px, -40.1vh, 0) rotate(0.6deg); }
+      36% { transform: translate3d(-6.7px, -42.5vh, 0) rotate(-1.0deg); }
+      38% { transform: translate3d(-3.0px, -44.8vh, 0) rotate(-0.4deg); }
+      40% { transform: translate3d(7.1px, -47.2vh, 0) rotate(1.0deg); }
+      42% { transform: translate3d(2.1px, -49.6vh, 0) rotate(0.3deg); }
+      44% { transform: translate3d(-7.3px, -51.9vh, 0) rotate(-1.1deg); }
+      46% { transform: translate3d(-1.2px, -54.3vh, 0) rotate(-0.2deg); }
+      48% { transform: translate3d(7.5px, -56.6vh, 0) rotate(1.1deg); }
+      50% { transform: translate3d(0.3px, -59.0vh, 0) rotate(0.0deg); }
+      52% { transform: translate3d(-7.5px, -61.4vh, 0) rotate(-1.1deg); }
+      54% { transform: translate3d(0.6px, -63.7vh, 0) rotate(0.1deg); }
+      56% { transform: translate3d(7.4px, -66.1vh, 0) rotate(1.1deg); }
+      58% { transform: translate3d(-1.5px, -68.4vh, 0) rotate(-0.2deg); }
+      60% { transform: translate3d(-7.2px, -70.8vh, 0) rotate(-1.1deg); }
+      62% { transform: translate3d(2.4px, -73.2vh, 0) rotate(0.4deg); }
+      64% { transform: translate3d(6.9px, -75.5vh, 0) rotate(1.0deg); }
+      66% { transform: translate3d(-3.3px, -77.9vh, 0) rotate(-0.5deg); }
+      68% { transform: translate3d(-6.5px, -80.2vh, 0) rotate(-1.0deg); }
+      70% { transform: translate3d(4.1px, -82.6vh, 0) rotate(0.6deg); }
+      72% { transform: translate3d(6.0px, -85.0vh, 0) rotate(0.9deg); }
+      74% { transform: translate3d(-4.8px, -87.3vh, 0) rotate(-0.7deg); }
+      76% { transform: translate3d(-5.5px, -89.7vh, 0) rotate(-0.8deg); }
+      78% { transform: translate3d(5.5px, -92.0vh, 0) rotate(0.8deg); }
+      80% { transform: translate3d(4.8px, -94.4vh, 0) rotate(0.7deg); }
+      82% { transform: translate3d(-6.0px, -96.8vh, 0) rotate(-0.9deg); }
+      84% { opacity: 0.95; transform: translate3d(-4.1px, -99.1vh, 0) rotate(-0.6deg); }
+      86% { transform: translate3d(6.2px, -101.5vh, 0) rotate(1.0deg); }
+      88% { transform: translate3d(2.9px, -103.8vh, 0) rotate(0.5deg); }
+      90% { opacity: 0.7; filter: blur(1px); transform: translate3d(-5.9px, -106.2vh, 0) rotate(-1.0deg); }
+      92% { transform: translate3d(-1.9px, -108.6vh, 0) rotate(-0.4deg); }
+      94% { opacity: 0.38; filter: blur(2.5px); transform: translate3d(5.4px, -110.9vh, 0) rotate(1.1deg); }
+      96% { transform: translate3d(1.1px, -113.3vh, 0) rotate(0.2deg); }
+      98% { opacity: 0.12; filter: blur(4.5px); transform: translate3d(-4.8px, -115.6vh, 0) rotate(-1.1deg); }
+      100% { opacity: 0; filter: blur(6px); transform: translate3d(0px, -118.0vh, 0) rotate(0deg) scale(0.92); }
+    }
+
+    @media (max-width: 768px) {
+      .floating-lyric-item {
+        max-width: 48vw;
+        padding: 7px 14px;
+        font-size: clamp(0.76rem, 2.9vw, 0.92rem);
+      }
+      .floating-lyric-item.side-left {
+        left: 8px;
+      }
+      .floating-lyric-item.side-right {
+        right: 8px;
+      }
+    }
+
     .svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
     .garden-screen {
@@ -214,8 +629,8 @@
       content: "";
       position: absolute;
       z-index: -1;
-      top: -14px;
-      bottom: -14px;
+      top: -18px;
+      bottom: -18px;
       left: 50%;
       width: min(860px, calc(100vw - 36px));
       border: 1px solid rgba(255, 236, 227, .13);
@@ -227,29 +642,163 @@
       pointer-events: none;
     }
     .garden-heading .eyebrow, .letter-heading .eyebrow {
-      margin: 0 0 12px;
+      margin: 0 0 10px;
       color: #ead0df;
       font-size: .68rem;
       font-weight: 600;
-      letter-spacing: .3em;
+      letter-spacing: .24em;
       text-transform: uppercase;
     }
-    .garden-heading h1, .letter-heading h1 {
+    .garden-heading h1 {
       margin: 0;
       color: #fff5e9;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.1rem, 5.5vw, 4.5rem);
-      font-weight: 400;
-      letter-spacing: -.04em;
-      line-height: 1.04;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: clamp(1.35rem, 3.2vw, 2.35rem);
+      font-weight: 600;
+      letter-spacing: -.02em;
+      line-height: 1.22;
+      text-wrap: balance;
+    }
+    .letter-heading h1 {
+      margin: 0;
+      color: #fff5e9;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+      font-weight: 600;
+      letter-spacing: -.02em;
+      line-height: 1.15;
       text-wrap: balance;
     }
     .garden-heading p:last-child {
-      margin: 14px 0 0;
+      margin: 11px 0 0;
       color: rgba(255, 242, 231, .76);
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(.95rem, 2vw, 1.12rem);
-      font-style: italic;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: clamp(.88rem, 1.8vw, 1.05rem);
+    }
+
+    /* Garden guide/hint pill in top right corner */
+    .garden-hint {
+      position: absolute;
+      top: 22px;
+      right: 22px;
+      z-index: 25;
+      font-family: "Segoe UI", Arial, sans-serif;
+      animation: hint-arrive 1s .3s both;
+    }
+    .garden-hint-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 230, 220, .38);
+      border-radius: 999px;
+      color: rgba(255, 245, 233, .92);
+      background: rgba(26, 18, 42, .68);
+      box-shadow: 0 8px 24px rgba(11, 8, 23, .28);
+      backdrop-filter: blur(10px);
+      font-size: .82rem;
+      letter-spacing: .02em;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      transition: all .25s ease;
+      animation: hint-pill-pulse 3s infinite;
+    }
+    .garden-hint-btn::-webkit-details-marker { display: none; }
+    .garden-hint-btn::marker { content: ""; }
+    .garden-hint-btn:hover {
+      background: rgba(42, 28, 62, .88);
+      border-color: rgba(255, 228, 173, .65);
+      color: #fff9f0;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(11, 8, 23, .35), 0 0 16px rgba(255, 228, 173, .25);
+    }
+    .garden-hint[open] .garden-hint-btn {
+      background: rgba(46, 30, 68, .92);
+      border-color: rgba(255, 228, 173, .75);
+      box-shadow: 0 0 18px rgba(255, 228, 173, .35);
+      animation: none;
+    }
+    .garden-hint-icon {
+      font-size: .95rem;
+      color: #ffe4ad;
+      display: inline-block;
+      animation: hint-bulb-glow 2.2s ease-in-out infinite alternate;
+    }
+    @keyframes hint-arrive {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes hint-pill-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 228, 173, .35), 0 8px 24px rgba(11, 8, 23, .28); }
+      50% { box-shadow: 0 0 0 5px rgba(255, 228, 173, 0), 0 8px 24px rgba(11, 8, 23, .28); }
+    }
+    @keyframes hint-bulb-glow {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      100% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 228, 173, 0.8)); }
+    }
+
+    .garden-hint-card {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: min(340px, calc(100vw - 36px));
+      padding: 18px 22px 18px 20px;
+      border: 1px solid rgba(255, 228, 173, .38);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(38, 27, 54, .95), rgba(48, 35, 62, .93));
+      box-shadow: 0 16px 45px rgba(9, 6, 20, .45), 0 0 20px rgba(255, 228, 173, .12), inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(14px);
+      color: #fff6ec;
+      text-align: left;
+      animation: hint-card-arrive .3s cubic-bezier(.2,.75,.2,1) both;
+    }
+    @keyframes hint-card-arrive {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .garden-hint-close {
+      position: absolute;
+      top: 10px;
+      right: 11px;
+      display: grid;
+      place-items: center;
+      width: 28px;
+      aspect-ratio: 1;
+      padding: 0;
+      border: 1px solid rgba(255, 229, 215, .25);
+      border-radius: 50%;
+      color: rgba(255, 235, 224, .82);
+      background: rgba(30, 22, 44, .7);
+      font-size: 1.05rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: all .2s ease;
+    }
+    .garden-hint-close:hover {
+      color: #fff;
+      border-color: rgba(255, 228, 173, .6);
+      background: rgba(55, 38, 76, .9);
+      transform: scale(1.08);
+    }
+    .garden-hint-badge {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #ffe4ad;
+      margin-bottom: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .garden-hint-text {
+      margin: 0;
+      font-size: .88rem;
+      line-height: 1.6;
+      color: rgba(255, 245, 233, .92);
+      font-family: "Segoe UI", Arial, sans-serif;
     }
 
     .garden-glow {
@@ -455,20 +1004,21 @@
       filter: drop-shadow(0 0 14px var(--memory-glow, rgba(255, 225, 171, .35)));
       transform-origin: 50% 28%;
     }
-    #flowerNote[data-effect="bloom"] .memory-bloom::before { animation: memory-halo 1.1s ease-out both; }
-    #flowerNote[data-effect="bloom"] .memory-bloom svg { animation: memory-bloom-in .95s cubic-bezier(.16,.78,.2,1) both; }
-    #flowerNote[data-effect="unfurl"] .memory-bloom svg { animation: memory-unfurl 1s cubic-bezier(.18,.8,.2,1) both; }
-    #flowerNote[data-effect="sparkle"] .memory-bloom::after { animation: memory-sparkle 1.6s .25s ease-in-out infinite alternate; }
-    #flowerNote[data-effect="sparkle"] .memory-bloom svg { animation: memory-bloom-in .85s cubic-bezier(.16,.78,.2,1) both; }
-    #flowerNote[data-effect="drift"] .memory-bloom::before { animation: memory-halo 1.25s ease-out both; }
-    #flowerNote[data-effect="drift"] .memory-bloom svg { animation: memory-drift 2.4s ease-in-out both; }
+    .flower-note-card[data-effect="bloom"] .memory-bloom::before { animation: memory-halo 1.1s ease-out both; }
+    .flower-note-card[data-effect="bloom"] .memory-bloom svg { animation: memory-bloom-in .95s cubic-bezier(.16,.78,.2,1) both; }
+    .flower-note-card[data-effect="unfurl"] .memory-bloom svg { animation: memory-unfurl 1s cubic-bezier(.18,.8,.2,1) both; }
+    .flower-note-card[data-effect="sparkle"] .memory-bloom::after { animation: memory-sparkle 1.6s .25s ease-in-out infinite alternate; }
+    .flower-note-card[data-effect="sparkle"] .memory-bloom svg { animation: memory-bloom-in .85s cubic-bezier(.16,.78,.2,1) both; }
+    .flower-note-card[data-effect="drift"] .memory-bloom::before { animation: memory-halo 1.25s ease-out both; }
+    .flower-note-card[data-effect="drift"] .memory-bloom svg { animation: memory-drift 2.4s ease-in-out both; }
     .memory-bloom.palette-white { --memory-glow: rgba(255, 225, 171, .42); }
     .memory-bloom.palette-pink { --memory-glow: rgba(244, 141, 190, .42); }
     .memory-bloom.palette-coral { --memory-glow: rgba(255, 164, 129, .4); }
     .memory-bloom.palette-purple { --memory-glow: rgba(197, 160, 236, .42); }
     .flower-note-kicker { margin: 0 0 9px; color: #edc8d8; font-size: .65rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
-    .flower-note-card h2 { margin: 0; color: #fff5e9; font: 400 1.55rem/1.2 Georgia, "Times New Roman", serif; }
-    .flower-note-message { margin: 11px 0 0; color: rgba(255, 242, 231, .82); font-family: Georgia, "Times New Roman", serif; font-size: 1rem; font-style: italic; line-height: 1.65; }
+    .flower-note-card h2 { margin: 0; color: #fff5e9; font-family: "Segoe UI", Arial, sans-serif; font-size: 1.45rem; font-weight: 600; line-height: 1.25; }
+    .flower-note-message { margin: 11px 0 0; color: rgba(255, 242, 231, .88); font-family: "Segoe UI", Arial, sans-serif; font-size: 1rem; font-style: normal; line-height: 1.65; }
+    .flower-note-message p { margin: 6px 0; }
     .flower-note-hint { margin: 14px 0 0; color: rgba(255, 228, 203, .67); font-size: .75rem; letter-spacing: .02em; }
     .flower-note-close {
       position: absolute;
@@ -511,8 +1061,7 @@
     .letter-back { position: fixed; z-index: 30; top: 20px; left: 20px; min-height: 42px; padding: 0 17px; font-size: .82rem; }
     .letter-heading { margin: 0 0 22px; }
     .letter-heading .eyebrow { color: #edc8d8; }
-    .letter-heading h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
-    .letter-heading p:last-child { margin: 12px 0 0; color: rgba(255, 242, 231, .7); font-family: Georgia, serif; font-style: italic; }
+    .letter-heading p:last-child { margin: 12px 0 0; color: rgba(255, 242, 231, .76); font-family: "Segoe UI", Arial, sans-serif; font-size: clamp(.95rem, 2vw, 1.12rem); font-style: normal; }
 
     .letter-box { width: 100%; }
     .envelope-trigger { display: block; width: max-content; max-width: 100%; margin: 0 auto; list-style: none; cursor: pointer; }
@@ -614,6 +1163,9 @@
 
     @media (max-width: 650px) {
       .cover-audio-pill { top: 16px; right: 16px; padding: 0 12px; font-size: .76rem; min-height: 34px; }
+      .garden-hint { top: 16px; right: 16px; }
+      .garden-hint-btn { padding: 0 12px; font-size: .74rem; min-height: 34px; }
+      .garden-hint-card { right: 0; width: min(300px, calc(100vw - 32px)); padding: 15px 18px; }
       .garden-heading { top: 7vh; }
       .garden-heading .eyebrow { font-size: .58rem; letter-spacing: .22em; }
       .garden-heading p:last-child { max-width: 280px; margin: 12px auto 0; }
@@ -629,11 +1181,11 @@
     }
     @media (max-height: 650px) and (min-width: 651px) {
       .garden-heading { top: 4vh; }
-      .garden-heading h1 { font-size: clamp(2rem, 6vh, 3rem); }
+      .garden-heading h1 { font-size: clamp(1.2rem, 3.8vh, 1.85rem); }
       .garden-heading p:last-child { margin-top: 8px; }
       .letter-screen { padding-top: 18px; }
       .letter-heading { margin-bottom: 8px; }
-      .letter-heading h1 { font-size: 2.2rem; }
+      .letter-heading h1 { font-size: clamp(1.4rem, 4.2vh, 2rem); }
       .envelope-scene { height: 185px; margin-top: 4px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -715,6 +1267,7 @@
 
   <details class="garden-gate" id="flowerGarden">
     <summary class="garden-cover">
+      <div class="floating-lyrics-container" id="floatingLyricsContainer" aria-hidden="true"></div>
       <button class="cover-audio-pill" id="coverAudioPill" type="button" aria-label="Bật nhạc bìa">
         <span class="audio-pill-icon" aria-hidden="true">♫</span>
         <span class="audio-pill-text">Chạm để bật nhạc</span>
@@ -730,19 +1283,46 @@
           <circle cx="50" cy="50" r="12" fill="#ffe49a" />
         </svg>
         <p class="cover-kicker">GỬI TẶNG IU MỘT VƯỜN HOA</p>
-        <h1 class="cover-title">Không chỉ là đóa hoa<br>mà cả 1 khu vườn</h1>
+        <h1 class="cover-title">Có bí mật ở trong đó á<br>để tui show cho iu coi</h1>
         <p class="cover-copy">Iu nhấn cái nút ở dưới nhá.</p>
         <span class="cover-button" role="button" tabindex="0">Cái nút này này <span class="cover-heart" aria-hidden="true">♥</span></span>
+        <div class="cover-lyrics" id="coverLyrics" aria-live="polite">
+          <div class="lyrics-track-info">
+            <span class="lyrics-icon" aria-hidden="true">♫</span>
+            <span class="lyrics-track-name" id="lyricsTrackName">A special song ♫</span>
+          </div>
+          <div class="lyrics-viewport">
+            <p class="lyrics-line lyrics-current" id="lyricsCurrentLine">
+              <span class="lyrics-fill-text" id="lyricsFillText">Đang chờ để Iu bấm vào ♫</span>
+            </p>
+          </div>
+        </div>
       </div>
     </summary>
 
   <section class="screen garden-screen" id="gardenScreen" aria-labelledby="gardenTitle">
     <div class="star-field" aria-hidden="true"></div>
     <div class="garden-glow" aria-hidden="true"></div>
+
+    <!-- NÚT GỢI Ý HƯỚNG DẪN Ở GÓC TRÊN BÊN PHẢI -->
+    <details class="garden-hint" id="gardenHint">
+      <summary class="garden-hint-btn" role="button" aria-haspopup="dialog" aria-label="Hướng dẫn khu vườn">
+        <span class="garden-hint-icon" aria-hidden="true">💡</span>
+        <span class="garden-hint-btn-text">Bấm vào đây nếu iu chưa biết làm gì tiếp</span>
+      </summary>
+      <div class="garden-hint-card" role="dialog" aria-modal="false" aria-labelledby="gardenHintTitle">
+        <button type="button" class="garden-hint-close" data-close-garden-hint aria-label="Đóng gợi ý">×</button>
+        <div class="garden-hint-badge" aria-hidden="true">GỢI Ý DÀNH CHO IU ✦</div>
+        <p class="garden-hint-text" id="gardenHintTitle">
+          Trong khu vườn có những bông hoa đặc biệt, iu rà chuột và tìm ra nó nhá, có 4 bông hoa và iu phải mở theo đúng thứ tự đó nha.
+        </p>
+      </div>
+    </details>
+
     <header class="garden-heading">
-      <p class="eyebrow">MỘT KHU VƯỜN DÀNH TẶNG BẠN</p>
-      <h1 id="gardenTitle">Mong bạn luôn<br>nở rộ theo cách riêng</h1>
-      <p>Mỗi bông hoa là một lời chúc dịu dàng.</p>
+      <p class="eyebrow">MỘT VƯỜN HOA - CÓ NHỮNG ĐIỀU NGỠ NHƯ MỚI HÔM QUA</p>
+      <h1 id="gardenTitle">Có những bông hoa đặc biệt<br>Dành cho một người đặc biệt</h1>
+      <p>Những lần trái tym này rung động...</p>
     </header>
 
     <div class="meadow">
@@ -1007,15 +1587,59 @@
     </div>
     </div>
 
-    <aside class="flower-note-card" id="flowerNote" role="dialog" aria-modal="false" aria-labelledby="flowerNoteTitle" aria-describedby="flowerNoteMessage" tabindex="-1" hidden>
+    <!-- ============================================================== -->
+    <!-- CHUỖI KỶ NIỆM (4 THẺ DÀNH CHO 4 BÔNG HOA KỶ NIỆM)             -->
+    <!-- Bạn có thể trực tiếp viết và chỉnh sửa nội dung từng thẻ ở đây -->
+    <!-- ============================================================== -->
+
+    <!-- THẺ KỶ NIỆM 1: Mở khi chạm Hoa Cúc Trắng (Bông 1) -->
+    <aside class="flower-note-card" id="flowerNote1" data-memory-card="0" data-effect="bloom" role="dialog" aria-modal="false" aria-labelledby="flowerNoteTitle1" aria-describedby="flowerNoteMessage1" tabindex="-1" hidden>
       <button class="flower-note-close" type="button" data-close-flower-note aria-label="Đóng lời nhắn">×</button>
-      <div class="memory-bloom palette-white" id="memoryBloom" aria-hidden="true"><svg viewBox="0 0 100 230"><use href="#daisyFlower" id="memoryBloomShape" /></svg></div>
-      <p class="flower-note-kicker" id="flowerNoteKicker">CHUỖI KỶ NIỆM · 1 / 4</p>
-      <h2 id="flowerNoteTitle">Kỷ niệm 1</h2>
-      <p class="flower-note-message" id="flowerNoteMessage">Nội dung kỷ niệm sẽ được thêm sau.</p>
+      <div class="memory-bloom palette-white" aria-hidden="true"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></div>
+      <p class="flower-note-kicker">CHUỖI KỶ NIỆM · 1 / 4</p>
+      <h2 id="flowerNoteTitle1">Kỷ niệm 1</h2>
+      <div class="flower-note-message" id="flowerNoteMessage1">
+        <p>Nội dung kỷ niệm sẽ được thêm sau.</p>
+      </div>
       <p class="flower-note-hint">Đóng thẻ rồi chạm một đóa hoa khác để mở kỷ niệm khác.</p>
     </aside>
-    <a class="continue-link" href="#letterPage">Đến trang bức thư <span aria-hidden="true">→</span></a>
+
+    <!-- THẺ KỶ NIỆM 2: Mở khi chạm Hoa Tulip Hồng (Bông 2) -->
+    <aside class="flower-note-card" id="flowerNote2" data-memory-card="1" data-effect="unfurl" role="dialog" aria-modal="false" aria-labelledby="flowerNoteTitle2" aria-describedby="flowerNoteMessage2" tabindex="-1" hidden>
+      <button class="flower-note-close" type="button" data-close-flower-note aria-label="Đóng lời nhắn">×</button>
+      <div class="memory-bloom palette-pink" aria-hidden="true"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></div>
+      <p class="flower-note-kicker">CHUỖI KỶ NIỆM · 2 / 4</p>
+      <h2 id="flowerNoteTitle2">Kỷ niệm 2</h2>
+      <div class="flower-note-message" id="flowerNoteMessage2">
+        <p>Nội dung kỷ niệm sẽ được thêm sau.</p>
+      </div>
+      <p class="flower-note-hint">Đóng thẻ rồi chạm một đóa hoa khác để mở kỷ niệm khác.</p>
+    </aside>
+
+    <!-- THẺ KỶ NIỆM 3: Mở khi chạm Hoa Anh Túc Cam Đỏ (Bông 3) -->
+    <aside class="flower-note-card" id="flowerNote3" data-memory-card="2" data-effect="sparkle" role="dialog" aria-modal="false" aria-labelledby="flowerNoteTitle3" aria-describedby="flowerNoteMessage3" tabindex="-1" hidden>
+      <button class="flower-note-close" type="button" data-close-flower-note aria-label="Đóng lời nhắn">×</button>
+      <div class="memory-bloom palette-coral" aria-hidden="true"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></div>
+      <p class="flower-note-kicker">CHUỖI KỶ NIỆM · 3 / 4</p>
+      <h2 id="flowerNoteTitle3">Kỷ niệm 3</h2>
+      <div class="flower-note-message" id="flowerNoteMessage3">
+        <p>Nội dung kỷ niệm sẽ được thêm sau.</p>
+      </div>
+      <p class="flower-note-hint">Đóng thẻ rồi chạm một đóa hoa khác để mở kỷ niệm khác.</p>
+    </aside>
+
+    <!-- THẺ KỶ NIỆM 4: Mở khi chạm Hoa Sao Nhái Tím (Bông 4) -->
+    <aside class="flower-note-card" id="flowerNote4" data-memory-card="3" data-effect="drift" role="dialog" aria-modal="false" aria-labelledby="flowerNoteTitle4" aria-describedby="flowerNoteMessage4" tabindex="-1" hidden>
+      <button class="flower-note-close" type="button" data-close-flower-note aria-label="Đóng lời nhắn">×</button>
+      <div class="memory-bloom palette-purple" aria-hidden="true"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></div>
+      <p class="flower-note-kicker">CHUỖI KỶ NIỆM · 4 / 4</p>
+      <h2 id="flowerNoteTitle4">Kỷ niệm 4</h2>
+      <div class="flower-note-message" id="flowerNoteMessage4">
+        <p>Nội dung kỷ niệm sẽ được thêm sau.</p>
+      </div>
+      <p class="flower-note-hint">Đóng thẻ rồi chạm một đóa hoa khác để mở kỷ niệm khác.</p>
+    </aside>
+    <a class="continue-link" href="#letterPage">Iu bấm vào đây nhá, có đôi lời... <span aria-hidden="true">→</span></a>
   </section>
   </details>
 
@@ -1023,9 +1647,9 @@
     <a class="letter-back" href="#gardenPage"><span aria-hidden="true">←</span> Vườn hoa</a>
     <div class="letter-wrap">
       <header class="letter-heading">
-        <p class="eyebrow">MỘT ĐIỀU NHỎ MUỐN GỬI BẠN</p>
-        <h1 id="letterTitle">Một lá thư đang chờ mở</h1>
-        <p>Chạm vào phong thư để đọc lời nhắn.</p>
+        <p class="eyebrow">MỘT CHÚT NHỎ NHẮN MUỐN GỬI TỚI IU</p>
+        <h1 id="letterTitle">Một lá thư nói lên vài điều </h1>
+        <p>Một trái tym chìm đắm trong tình yêu</p>
       </header>
 
       <details class="letter-box" id="messageLetter">
@@ -1051,37 +1675,85 @@
     (() => {
       const memoryFlowers = [...document.querySelectorAll("[data-memory-flower]")]
         .sort((a, b) => Number(a.dataset.memoryIndex) - Number(b.dataset.memoryIndex));
-      const flowerNote = document.getElementById("flowerNote");
-      const memoryBloom = document.getElementById("memoryBloom");
-      const memoryBloomShape = document.getElementById("memoryBloomShape");
-      const flowerNoteKicker = document.getElementById("flowerNoteKicker");
-      const flowerNoteTitle = document.getElementById("flowerNoteTitle");
-      const flowerNoteMessage = document.getElementById("flowerNoteMessage");
-      const closeFlowerNote = document.querySelector("[data-close-flower-note]");
+      const memoryCards = [...document.querySelectorAll(".flower-note-card")]
+        .sort((a, b) => Number(a.dataset.memoryCard ?? 0) - Number(b.dataset.memoryCard ?? 0));
+      const gardenHint = document.getElementById("gardenHint");
+      const closeGardenHintBtn = document.querySelector("[data-close-garden-hint]");
       const messageLetter = document.getElementById("messageLetter");
       const flowerGarden = document.getElementById("flowerGarden");
       const gardenCover = document.querySelector(".garden-cover");
       const coverAudioPill = document.getElementById("coverAudioPill");
       const coverButton = document.querySelector(".cover-button");
+      const coverLyrics = document.getElementById("coverLyrics");
+      const lyricsFillText = document.getElementById("lyricsFillText");
+      const lyricsTrackName = document.getElementById("lyricsTrackName");
+      const floatingLyricsContainer = document.getElementById("floatingLyricsContainer");
       const letterPageAnchor = document.getElementById("letterPage");
       const letterLink = document.querySelector('.continue-link[href="#letterPage"]');
       const gardenBackLink = document.querySelector('.letter-back[href="#gardenPage"]');
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      const coverMusic = new Audio("assets/audio/cover-soft-piano.mp3");
+      const coverMusic = new Audio("assets/audio/until-i-found-you.mp3");
       coverMusic.loop = true;
-      coverMusic.volume = 0.32;
+      coverMusic.volume = 0.45;
+      const gardenMusic = new Audio("assets/audio/pink-sweats.mp3");
+      gardenMusic.loop = true;
+      gardenMusic.volume = 0.32; // 70% so với âm thanh khác (0.45 * 0.70)
+      let gardenFadeFrame = 0;
+      gardenMusic.addEventListener("error", () => {
+        if (!gardenMusic.src.includes("Pink-Sweat-SnapYT.App.mp3")) {
+          gardenMusic.src = "Pink-Sweat-SnapYT.App.mp3";
+          gardenMusic.load();
+          if (flowerGarden?.open && !isLetterScreen() && soundEnabled) {
+            gardenMusic.play().catch(() => {});
+          }
+        }
+      });
       const letterTracks = [
         "assets/audio/gentle-love-piano-music.mp3",
         "assets/audio/love-piano-emotional.mp3",
       ];
-      const memoryFlowerSequence = [
-        { symbol: "daisyFlower", palette: "palette-white", effect: "bloom", message: "Nội dung kỷ niệm sẽ được thêm sau." },
-        { symbol: "tulipFlower", palette: "palette-pink", effect: "unfurl", message: "Nội dung kỷ niệm sẽ được thêm sau." },
-        { symbol: "poppyFlower", palette: "palette-coral", effect: "sparkle", message: "Nội dung kỷ niệm sẽ được thêm sau." },
-        { symbol: "cosmosFlower", palette: "palette-purple", effect: "drift", message: "Nội dung kỷ niệm sẽ được thêm sau." },
+      let UNTIL_I_FOUND_YOU_LYRICS = [
+        { start: 12.21, end: 13.65, text: "Bé àaaaaa" },
+        { start: 15.25, end: 18.22, text: "Wrap me up in all your..." },
+        { start: 18.72, end: 24.06, text: "I want you in my arms" },
+        { start: 24.12, end: 27.36, text: "Oh, let me hold you" },
+        { start: 29.60, end: 35.03, text: "I'll never let you go again like I did" },
+        { start: 35.47, end: 38.37, text: "Oh, I used to say" },
+        { start: 39.04, end: 45.71, text: "I would never fall in love again until I found her" },
+        { start: 46.45, end: 53.09, text: "I said I would never fall unless it's you I fall into" },
+        { start: 53.79, end: 60.33, text: "I was lost within the darkness, but then I found her" },
+        { start: 60.69, end: 65.86, text: "I found you" },
+        { start: 70.27, end: 71.57, text: "Bé àaaaaa" },
+        { start: 73.24, end: 74.94, text: "Pulled me in" },
+        { start: 75.01, end: 81.98, text: "I asked to love her once again" },
+        { start: 82.05, end: 85.45, text: "You fell, I caught you" },
+        { start: 87.32, end: 92.86, text: "I'll never let you go again, oh, like I did" },
+        { start: 93.29, end: 96.50, text: "Oh, I used to say" },
+        { start: 96.86, end: 103.57, text: "I would never fall in love again until I found her" },
+        { start: 104.07, end: 110.88, text: "I said I would never fall unless it's you I fall into" },
+        { start: 111.28, end: 118.15, text: "I was lost within the darkness, but then I found her" },
+        { start: 118.22, end: 123.29, text: "I found you" },
+        { start: 139.44, end: 145.91, text: "I would never fall in love again until I found her" },
+        { start: 146.28, end: 153.02, text: "I said I would never fall unless it's you I fall into" },
+        { start: 153.42, end: 160.09, text: "I was lost within the darkness, but then I found her" },
+        { start: 160.19, end: 165.33, text: "I found you" }
       ];
+
+      // Tự động nạp dữ liệu từ file JSON nếu môi trường hỗ trợ fetch (Local server / Web)
+      try {
+        fetch("assets/audio/lyrics-until-i-found-you.json")
+          .then((res) => res.json())
+          .then((data) => {
+            if (Array.isArray(data) && data.length > 0) {
+              UNTIL_I_FOUND_YOU_LYRICS = data;
+            }
+          })
+          .catch(() => { /* Mở offline file:/// sẽ dùng danh sách mặc định ở trên */ });
+      } catch (err) { /* fallback */ }
+
       const soundEnabled = true;
       let audioContext;
+      let activeMemoryCard = null;
       let activeMemoryFlower = null;
       let highestOpenedMemory = -1;
       let gardenSoundscapeActive = false;
@@ -1093,6 +1765,188 @@
       let playingTrackIndex = -1;
       let coverFadeFrame = 0;
       let userPausedCoverMusic = false;
+      let lyricSyncFrame = 0;
+      let lastRenderedText = "";
+      let lastSpawnedLyricTime = -1;
+      let activeFloatingElements = new Map();
+
+      function clearFloatingLyrics() {
+        if (!floatingLyricsContainer) return;
+        floatingLyricsContainer.innerHTML = "";
+        activeFloatingElements.clear();
+        lastSpawnedLyricTime = -1;
+      }
+
+      function spawnFloatingLyric(item, side, variant) {
+        if (!floatingLyricsContainer) return;
+        const el = document.createElement("div");
+        el.className = `floating-lyric-item side-${side} variant-${variant} is-active`;
+        el.setAttribute("data-start", item.start);
+
+        const symbol = document.createElement("span");
+        symbol.className = "floating-lyric-symbol";
+        symbol.textContent = side === "left" ? "✧" : "✿";
+        symbol.setAttribute("aria-hidden", "true");
+
+        const text = document.createElement("span");
+        text.className = "floating-lyric-text";
+        text.textContent = item.text;
+
+        if (side === "left") {
+          el.appendChild(symbol);
+          el.appendChild(text);
+        } else {
+          el.appendChild(text);
+          el.appendChild(symbol);
+        }
+
+        floatingLyricsContainer.appendChild(el);
+        activeFloatingElements.set(item.start, el);
+
+        el.addEventListener("animationend", () => {
+          el.remove();
+          activeFloatingElements.delete(item.start);
+        });
+
+        window.setTimeout(() => {
+          if (el.parentNode) {
+            el.remove();
+            activeFloatingElements.delete(item.start);
+          }
+        }, 14000);
+      }
+
+      function updateLyricUI() {
+        if (!coverLyrics || !lyricsFillText) return;
+
+        // Trạng thái chưa phát hoặc tạm dừng ở đầu bài
+        if (coverMusic.paused && coverMusic.currentTime === 0) {
+          clearFloatingLyrics();
+          coverLyrics.classList.add("is-paused");
+          if (lyricsTrackName) lyricsTrackName.textContent = "Một bài hát đặc biệt ♫";
+          lyricsFillText.innerHTML = "Chạm để lắng nghe ♫";
+          lyricsFillText.style.setProperty("--fill", "100%");
+          lastRenderedText = "";
+          return;
+        }
+
+        coverLyrics.classList.toggle("is-paused", coverMusic.paused);
+        const time = coverMusic.currentTime;
+
+        // Khi bài hát đang phát: hiển thị tên bài hát
+        if (lyricsTrackName && !coverMusic.paused && lyricsTrackName.textContent !== "Until I Found You · Stephen Sanchez") {
+          lyricsTrackName.textContent = "Until I Found You";
+        }
+
+        // Đoạn dạo đầu trước câu hát đầu tiên (0s -> 12.21s)
+        if (time < UNTIL_I_FOUND_YOU_LYRICS[0].start) {
+          if (lastSpawnedLyricTime !== -1) {
+            clearFloatingLyrics();
+          }
+          if (lastRenderedText !== "__music_intro__") {
+            lyricsFillText.innerHTML = '<span class="lyrics-music-wave" aria-label="Giai điệu đang dạo">♪ ♫ ♪</span>';
+            lyricsFillText.style.setProperty("--fill", "100%");
+            lastRenderedText = "__music_intro__";
+          }
+          return;
+        }
+
+        // Tìm câu hát đang phát
+        let activeIdx = -1;
+        for (let i = 0; i < UNTIL_I_FOUND_YOU_LYRICS.length; i++) {
+          const item = UNTIL_I_FOUND_YOU_LYRICS[i];
+          if (time >= item.start && time <= item.end) {
+            activeIdx = i;
+            break;
+          }
+        }
+
+        if (activeIdx >= 0) {
+          const item = UNTIL_I_FOUND_YOU_LYRICS[activeIdx];
+
+          // Bắn câu hát bay lả lơi ở hai bên
+          if (lastSpawnedLyricTime !== item.start) {
+            lastSpawnedLyricTime = item.start;
+            const side = activeIdx % 2 === 0 ? "left" : "right";
+            const variant = (Math.floor(activeIdx / 2) % 2) + 1;
+            spawnFloatingLyric(item, side, variant);
+          }
+
+          // Cập nhật trạng thái phát sáng cho câu đang hát
+          activeFloatingElements.forEach((el, startKey) => {
+            if (startKey === item.start) {
+              el.classList.add("is-active");
+            } else {
+              el.classList.remove("is-active");
+            }
+          });
+
+          if (lastRenderedText !== item.text) {
+            lyricsFillText.textContent = item.text;
+            lastRenderedText = item.text;
+          }
+          const dur = Math.max(0.1, item.end - item.start);
+          const progress = Math.min(1, Math.max(0, (time - item.start) / dur));
+          lyricsFillText.style.setProperty("--fill", (progress * 100).toFixed(1) + "%");
+          return;
+        }
+
+        // Khoảng nghỉ giữa các câu hoặc phần kết (outro)
+        let prevIdx = -1;
+        for (let i = UNTIL_I_FOUND_YOU_LYRICS.length - 1; i >= 0; i--) {
+          if (time > UNTIL_I_FOUND_YOU_LYRICS[i].end) {
+            prevIdx = i;
+            break;
+          }
+        }
+
+        if (prevIdx >= 0 && prevIdx < UNTIL_I_FOUND_YOU_LYRICS.length - 1) {
+          const nextItem = UNTIL_I_FOUND_YOU_LYRICS[prevIdx + 1];
+          const gap = nextItem.start - UNTIL_I_FOUND_YOU_LYRICS[prevIdx].end;
+          if (gap > 4) {
+            // Khoảng nghỉ dài (như đoạn solo guitar): hiện icon âm nhạc nhẹ nhàng
+            if (lastRenderedText !== "__music_solo__") {
+              lyricsFillText.innerHTML = '<span class="lyrics-music-wave">♪ ♫ ♪</span>';
+              lyricsFillText.style.setProperty("--fill", "100%");
+              lastRenderedText = "__music_solo__";
+            }
+          } else {
+            // Khoảng nghỉ ngắn: giữ nguyên câu vừa hát đã fill đủ 100%
+            const prevText = UNTIL_I_FOUND_YOU_LYRICS[prevIdx].text;
+            if (lastRenderedText !== prevText) {
+              lyricsFillText.textContent = prevText;
+              lastRenderedText = prevText;
+            }
+            lyricsFillText.style.setProperty("--fill", "100%");
+          }
+        } else if (prevIdx === UNTIL_I_FOUND_YOU_LYRICS.length - 1) {
+          // Outro: hiện nốt nhạc nhẹ nhàng kết thúc
+          if (lastRenderedText !== "__music_outro__") {
+            lyricsFillText.innerHTML = '<span class="lyrics-music-wave">♪ ♫ ♪</span>';
+            lyricsFillText.style.setProperty("--fill", "100%");
+            lastRenderedText = "__music_outro__";
+          }
+        }
+      }
+
+      function startLyricSync() {
+        if (lyricSyncFrame) cancelAnimationFrame(lyricSyncFrame);
+        const loop = () => {
+          updateLyricUI();
+          if (!coverMusic.paused && !flowerGarden?.open && !isLetterScreen()) {
+            lyricSyncFrame = requestAnimationFrame(loop);
+          } else {
+            lyricSyncFrame = 0;
+          }
+        };
+        lyricSyncFrame = requestAnimationFrame(loop);
+      }
+
+      function stopLyricSync() {
+        if (lyricSyncFrame) cancelAnimationFrame(lyricSyncFrame);
+        lyricSyncFrame = 0;
+        updateLyricUI();
+      }
 
       function updateCoverMusicUI() {
         if (!coverAudioPill) return;
@@ -1104,21 +1958,36 @@
         }
         coverAudioPill.setAttribute("aria-label", isPlaying ? "Tạm dừng nhạc bìa" : "Bật nhạc bìa");
       }
-      coverMusic.addEventListener("play", updateCoverMusicUI);
-      coverMusic.addEventListener("pause", updateCoverMusicUI);
+      coverMusic.addEventListener("play", () => {
+        updateCoverMusicUI();
+        startLyricSync();
+      });
+      coverMusic.addEventListener("pause", () => {
+        updateCoverMusicUI();
+        stopLyricSync();
+      });
+      coverMusic.addEventListener("timeupdate", () => {
+        if (!lyricSyncFrame && !coverMusic.paused) {
+          startLyricSync();
+        }
+      });
 
       function startCoverMusic() {
         if (!soundEnabled || flowerGarden?.open || isLetterScreen()) return;
         userPausedCoverMusic = false;
+        if (coverLyrics) coverLyrics.style.opacity = "1";
+        if (floatingLyricsContainer) floatingLyricsContainer.style.opacity = "1";
         if (coverFadeFrame) cancelAnimationFrame(coverFadeFrame);
         coverFadeFrame = 0;
-        coverMusic.volume = 0.32;
+        coverMusic.volume = 0.45;
         if (!coverMusic.paused) {
           updateCoverMusicUI();
+          startLyricSync();
           return;
         }
         coverMusic.play().then(() => {
           updateCoverMusicUI();
+          startLyricSync();
         }).catch(() => {
           // Browsers that block autoplay retry when the viewer first taps or presses a key.
         });
@@ -1137,12 +2006,16 @@
       function fadeOutCoverMusic(duration = 0) {
         if (coverFadeFrame) cancelAnimationFrame(coverFadeFrame);
         coverFadeFrame = 0;
+        stopLyricSync();
+        if (coverLyrics) coverLyrics.style.opacity = "0";
+        if (floatingLyricsContainer) floatingLyricsContainer.style.opacity = "0";
         if (coverMusic.paused) return;
         const startingVolume = coverMusic.volume;
         if (duration <= 0) {
           coverMusic.pause();
           coverMusic.currentTime = 0;
-          coverMusic.volume = 0.32;
+          coverMusic.volume = 0.45;
+          clearFloatingLyrics();
           return;
         }
         const startTime = performance.now();
@@ -1153,8 +2026,9 @@
           else {
             coverMusic.pause();
             coverMusic.currentTime = 0;
-            coverMusic.volume = 0.32;
+            coverMusic.volume = 0.45;
             coverFadeFrame = 0;
+            clearFloatingLyrics();
           }
         };
         coverFadeFrame = requestAnimationFrame(fade);
@@ -1312,7 +2186,67 @@
           .forEach(([delay, from, peak, length]) => birdChirp(gardenBusGain, start + delay, from, peak, length, 0.026));
       }
 
+      function playGardenMusic(fadeIn = true) {
+        if (!soundEnabled || !flowerGarden?.open || isLetterScreen()) return;
+        if (gardenFadeFrame) cancelAnimationFrame(gardenFadeFrame);
+        gardenFadeFrame = 0;
+        const targetVolume = 0.32; // 70% so với âm thanh khác (0.45 * 0.70)
+        if (!fadeIn) {
+          gardenMusic.volume = targetVolume;
+          gardenMusic.play().catch(() => {});
+          return;
+        }
+        if (gardenMusic.paused) {
+          gardenMusic.volume = 0.001;
+          gardenMusic.play().then(() => {
+            const start = performance.now();
+            const dur = 1800;
+            const step = (now) => {
+              const p = Math.min(1, (now - start) / dur);
+              gardenMusic.volume = targetVolume * p;
+              if (p < 1 && !gardenMusic.paused) {
+                gardenFadeFrame = requestAnimationFrame(step);
+              } else {
+                gardenFadeFrame = 0;
+                gardenMusic.volume = targetVolume;
+              }
+            };
+            gardenFadeFrame = requestAnimationFrame(step);
+          }).catch(() => {});
+        } else {
+          gardenMusic.volume = targetVolume;
+        }
+      }
+
+      function stopGardenMusic(fadeDuration = 0) {
+        if (gardenFadeFrame) cancelAnimationFrame(gardenFadeFrame);
+        gardenFadeFrame = 0;
+        if (gardenMusic.paused) return;
+        if (fadeDuration <= 0) {
+          gardenMusic.pause();
+          gardenMusic.currentTime = 0;
+          gardenMusic.volume = 0.32;
+          return;
+        }
+        const start = performance.now();
+        const startVol = gardenMusic.volume;
+        const step = (now) => {
+          const p = Math.min(1, (now - start) / fadeDuration);
+          gardenMusic.volume = startVol * (1 - p);
+          if (p < 1 && !gardenMusic.paused) {
+            gardenFadeFrame = requestAnimationFrame(step);
+          } else {
+            gardenFadeFrame = 0;
+            gardenMusic.pause();
+            gardenMusic.currentTime = 0;
+            gardenMusic.volume = 0.32;
+          }
+        };
+        gardenFadeFrame = requestAnimationFrame(step);
+      }
+
       async function startGardenSoundscape(withEntrance = false) {
+        playGardenMusic(withEntrance);
         if (!soundEnabled || !AudioContextClass || gardenSoundscapeActive) return;
         gardenSoundscapeActive = true;
         try {
@@ -1351,6 +2285,7 @@
       }
 
       function stopGardenSoundscape() {
+        stopGardenMusic(1000);
         gardenSoundscapeActive = false;
         gardenTimers.forEach((timer) => window.clearTimeout(timer));
         gardenTimers = [];
@@ -1416,9 +2351,30 @@
         toggleCoverMusic();
       });
 
+      function requestAppFullscreen() {
+        const docEl = document.documentElement;
+        try {
+          if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+            const requestMethod = docEl.requestFullscreen ||
+                                  docEl.webkitRequestFullscreen ||
+                                  docEl.mozRequestFullScreen ||
+                                  docEl.msRequestFullscreen;
+            if (requestMethod) {
+              const res = requestMethod.call(docEl);
+              if (res && typeof res.catch === "function") {
+                res.catch(() => {});
+              }
+            }
+          }
+        } catch (err) {
+          // Bỏ qua lỗi nếu trình duyệt chặn quyền toàn màn hình
+        }
+      }
+
       coverButton?.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
+          requestAppFullscreen();
           flowerGarden.open = true;
           fadeOutCoverMusic(1800);
           startGardenSoundscape(true);
@@ -1435,6 +2391,7 @@
           }
           return;
         }
+        requestAppFullscreen();
         fadeOutCoverMusic(1800);
         startGardenSoundscape(true);
       });
@@ -1443,6 +2400,8 @@
           fadeOutCoverMusic(1800);
           startGardenSoundscape(true);
         } else if (!flowerGarden.open) {
+          if (gardenHint) gardenHint.open = false;
+          hideFlowerNote(false);
           stopGardenSoundscape();
           startCoverMusic();
         }
@@ -1454,6 +2413,8 @@
         playLetterPlaylistTrack();
       });
       letterLink?.addEventListener("click", () => {
+        hideFlowerNote(false);
+        if (gardenHint) gardenHint.open = false;
         if (soundEnabled) {
           fadeOutCoverMusic();
           stopGardenSoundscape();
@@ -1473,6 +2434,7 @@
           playLetterPlaylistTrack();
         } else if (flowerGarden?.open) {
           startGardenSoundscape(false);
+          playGardenMusic(false);
         } else {
           if (!userPausedCoverMusic && !event?.target?.closest?.("#coverAudioPill")) {
             startCoverMusic();
@@ -1483,15 +2445,16 @@
       document.addEventListener("keydown", resumeAudioForCurrentScreen, true);
 
       function hideFlowerNote(returnFocus = true) {
-        if (flowerNote.hidden) return;
-        flowerNote.hidden = true;
+        if (!activeMemoryCard && memoryCards.every(c => c.hidden)) return;
+        memoryCards.forEach(c => { c.hidden = true; });
+        activeMemoryCard = null;
         activeMemoryFlower?.classList.remove("is-awake");
         if (returnFocus) activeMemoryFlower?.focus({ preventScroll: true });
         activeMemoryFlower = null;
       }
 
       memoryFlowers.forEach((flower, index) => flower.addEventListener("click", () => {
-        if (!flowerNote.hidden || flower.disabled) return;
+        if (activeMemoryCard || flower.disabled) return;
         highestOpenedMemory = Math.max(highestOpenedMemory, index);
         memoryFlowers.forEach((candidate, candidateIndex) => {
           const unlocked = candidateIndex <= highestOpenedMemory + 1;
@@ -1500,28 +2463,44 @@
             ? `Mở kỷ niệm ${candidateIndex + 1}`
             : `Mở kỷ niệm ${candidateIndex + 1} sau khi mở hoa trước`);
         });
-        const memoryFlower = memoryFlowerSequence[index];
-        memoryBloom.className = `memory-bloom ${memoryFlower.palette}`;
-        memoryBloom.dataset.effect = memoryFlower.effect;
-        flowerNote.dataset.effect = memoryFlower.effect;
-        memoryBloomShape.setAttribute("href", `#${memoryFlower.symbol}`);
-        flowerNoteKicker.textContent = `CHUỖI KỶ NIỆM · ${index + 1} / ${memoryFlowerSequence.length}`;
-        flowerNoteTitle.textContent = `Kỷ niệm ${index + 1}`;
-        flowerNoteMessage.textContent = memoryFlower.message;
-        flowerNote.hidden = false;
+
+        const targetCard = memoryCards[index] || document.getElementById(`flowerNote${index + 1}`);
+        if (!targetCard) return;
+
+        targetCard.hidden = false;
+        activeMemoryCard = targetCard;
         activeMemoryFlower = flower;
         flower.classList.add("is-awake");
-        flowerNote.focus({ preventScroll: true });
+        targetCard.focus({ preventScroll: true });
         playChime();
       }));
-      closeFlowerNote?.addEventListener("click", () => hideFlowerNote());
+      document.querySelectorAll("[data-close-flower-note]").forEach(btn => {
+        btn.addEventListener("click", () => hideFlowerNote());
+      });
+      gardenHint?.addEventListener("toggle", () => {
+        if (gardenHint.open) playChime();
+      });
+      closeGardenHintBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (gardenHint) gardenHint.open = false;
+      });
+      document.addEventListener("click", (event) => {
+        if (gardenHint && gardenHint.open && !event.target.closest("#gardenHint")) {
+          gardenHint.open = false;
+        }
+      });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && flowerNote && !flowerNote.hidden) hideFlowerNote();
+        if (event.key === "Escape") {
+          if (activeMemoryCard && !activeMemoryCard.hidden) hideFlowerNote();
+          if (gardenHint && gardenHint.open) gardenHint.open = false;
+        }
       });
       messageLetter?.addEventListener("toggle", () => {
         if (messageLetter.open) playChime();
       });
       syncScreenSound();
+      updateLyricUI();
     })();
   </script>
 </body>
