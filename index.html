@@ -2022,10 +2022,12 @@
         }
         const startTime = performance.now();
         const fade = (time) => {
-          const progress = Math.min(1, (time - startTime) / duration);
-          coverMusic.volume = startingVolume * (1 - progress);
-          if (progress < 1) coverFadeFrame = requestAnimationFrame(fade);
-          else {
+          const elapsed = Math.max(0, time - startTime);
+          const progress = Math.min(1, elapsed / duration);
+          coverMusic.volume = Math.max(0, Math.min(1, startingVolume * (1 - progress)));
+          if (progress < 1) {
+            coverFadeFrame = requestAnimationFrame(fade);
+          } else {
             coverMusic.pause();
             coverMusic.currentTime = 0;
             coverMusic.volume = 0.45;
@@ -2190,7 +2192,6 @@
 
       function playGardenMusic(fadeIn = true, forceOpen = false) {
         if (!soundEnabled || (!flowerGarden?.open && !forceOpen) || isLetterScreen()) return;
-        if (!gardenMusic.paused && gardenFadeFrame) return;
         if (gardenFadeFrame) cancelAnimationFrame(gardenFadeFrame);
         gardenFadeFrame = 0;
         const targetVolume = 0.32; // 70% so với âm thanh khác (0.45 * 0.70)
@@ -2199,7 +2200,7 @@
           gardenMusic.play().catch(() => {});
           return;
         }
-        if (gardenMusic.paused) {
+        if (gardenMusic.paused || gardenMusic.volume < 0.05) {
           gardenMusic.volume = 0.001;
           const playPromise = gardenMusic.play();
           if (playPromise) {
@@ -2207,8 +2208,9 @@
               const start = performance.now();
               const dur = 1800;
               const step = (now) => {
-                const p = Math.min(1, (now - start) / dur);
-                gardenMusic.volume = targetVolume * p;
+                const elapsed = Math.max(0, now - start);
+                const p = Math.min(1, elapsed / dur);
+                gardenMusic.volume = Math.max(0, Math.min(1, targetVolume * p));
                 if (p < 1 && !gardenMusic.paused) {
                   gardenFadeFrame = requestAnimationFrame(step);
                 } else {
@@ -2237,8 +2239,9 @@
         const start = performance.now();
         const startVol = gardenMusic.volume;
         const step = (now) => {
-          const p = Math.min(1, (now - start) / fadeDuration);
-          gardenMusic.volume = startVol * (1 - p);
+          const elapsed = Math.max(0, now - start);
+          const p = Math.min(1, elapsed / fadeDuration);
+          gardenMusic.volume = Math.max(0, Math.min(1, startVol * (1 - p)));
           if (p < 1 && !gardenMusic.paused) {
             gardenFadeFrame = requestAnimationFrame(step);
           } else {
@@ -2443,6 +2446,9 @@
         if (isLetterScreen()) {
           playLetterPlaylistTrack();
         } else if (flowerGarden?.open) {
+          if (audioContext && audioContext.state === "suspended") {
+            audioContext.resume().catch(() => {});
+          }
           startGardenSoundscape(false);
           playGardenMusic(false);
         } else {
