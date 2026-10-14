@@ -1695,9 +1695,11 @@
       const coverMusic = new Audio("assets/audio/until-i-found-you.mp3");
       coverMusic.loop = true;
       coverMusic.volume = 0.45;
+      coverMusic.preload = "auto";
       const gardenMusic = new Audio("assets/audio/pink-sweats.mp3");
       gardenMusic.loop = true;
       gardenMusic.volume = 0.32; // 70% so với âm thanh khác (0.45 * 0.70)
+      gardenMusic.preload = "auto";
       let gardenFadeFrame = 0;
       gardenMusic.addEventListener("error", () => {
         if (!gardenMusic.src.includes("Pink-Sweat-SnapYT.App.mp3")) {
@@ -2186,8 +2188,9 @@
           .forEach(([delay, from, peak, length]) => birdChirp(gardenBusGain, start + delay, from, peak, length, 0.026));
       }
 
-      function playGardenMusic(fadeIn = true) {
-        if (!soundEnabled || !flowerGarden?.open || isLetterScreen()) return;
+      function playGardenMusic(fadeIn = true, forceOpen = false) {
+        if (!soundEnabled || (!flowerGarden?.open && !forceOpen) || isLetterScreen()) return;
+        if (!gardenMusic.paused && gardenFadeFrame) return;
         if (gardenFadeFrame) cancelAnimationFrame(gardenFadeFrame);
         gardenFadeFrame = 0;
         const targetVolume = 0.32; // 70% so với âm thanh khác (0.45 * 0.70)
@@ -2198,21 +2201,24 @@
         }
         if (gardenMusic.paused) {
           gardenMusic.volume = 0.001;
-          gardenMusic.play().then(() => {
-            const start = performance.now();
-            const dur = 1800;
-            const step = (now) => {
-              const p = Math.min(1, (now - start) / dur);
-              gardenMusic.volume = targetVolume * p;
-              if (p < 1 && !gardenMusic.paused) {
-                gardenFadeFrame = requestAnimationFrame(step);
-              } else {
-                gardenFadeFrame = 0;
-                gardenMusic.volume = targetVolume;
-              }
-            };
-            gardenFadeFrame = requestAnimationFrame(step);
-          }).catch(() => {});
+          const playPromise = gardenMusic.play();
+          if (playPromise) {
+            playPromise.then(() => {
+              const start = performance.now();
+              const dur = 1800;
+              const step = (now) => {
+                const p = Math.min(1, (now - start) / dur);
+                gardenMusic.volume = targetVolume * p;
+                if (p < 1 && !gardenMusic.paused) {
+                  gardenFadeFrame = requestAnimationFrame(step);
+                } else {
+                  gardenFadeFrame = 0;
+                  gardenMusic.volume = targetVolume;
+                }
+              };
+              gardenFadeFrame = requestAnimationFrame(step);
+            }).catch(() => {});
+          }
         } else {
           gardenMusic.volume = targetVolume;
         }
@@ -2245,8 +2251,8 @@
         gardenFadeFrame = requestAnimationFrame(step);
       }
 
-      async function startGardenSoundscape(withEntrance = false) {
-        playGardenMusic(withEntrance);
+      async function startGardenSoundscape(withEntrance = false, forceOpen = false) {
+        playGardenMusic(withEntrance, forceOpen);
         if (!soundEnabled || !AudioContextClass || gardenSoundscapeActive) return;
         gardenSoundscapeActive = true;
         try {
@@ -2374,10 +2380,10 @@
       coverButton?.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          requestAppFullscreen();
           flowerGarden.open = true;
+          requestAppFullscreen();
           fadeOutCoverMusic(1800);
-          startGardenSoundscape(true);
+          startGardenSoundscape(true, true);
         }
       });
 
@@ -2391,14 +2397,18 @@
           }
           return;
         }
+        event.preventDefault();
+        flowerGarden.open = true;
         requestAppFullscreen();
         fadeOutCoverMusic(1800);
-        startGardenSoundscape(true);
+        startGardenSoundscape(true, true);
       });
       flowerGarden?.addEventListener("toggle", () => {
         if (flowerGarden.open && !isLetterScreen() && soundEnabled) {
-          fadeOutCoverMusic(1800);
-          startGardenSoundscape(true);
+          if (!gardenSoundscapeActive) {
+            fadeOutCoverMusic(1800);
+            startGardenSoundscape(true);
+          }
         } else if (!flowerGarden.open) {
           if (gardenHint) gardenHint.open = false;
           hideFlowerNote(false);
@@ -2424,7 +2434,7 @@
       gardenBackLink?.addEventListener("click", () => {
         if (soundEnabled) {
           stopLetterMusic();
-          startGardenSoundscape(true);
+          startGardenSoundscape(true, true);
         }
       });
       window.addEventListener("hashchange", syncScreenSound);
