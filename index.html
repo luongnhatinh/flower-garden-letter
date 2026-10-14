@@ -1190,13 +1190,16 @@
     .letter-paper {
       position: relative;
       width: min(100%, 620px);
+      min-height: clamp(400px, 60vh, 520px);
+      display: flex;
+      flex-direction: column;
       margin: 25px auto 0;
-      padding: clamp(27px, 5vw, 48px) clamp(24px, 7vw, 64px);
+      padding: clamp(24px, 5vw, 40px) clamp(22px, 6vw, 54px);
       color: #51424a;
       font-family: "Segoe UI", Arial, sans-serif;
       text-align: left;
       border: 1px solid rgba(255,255,255,.68);
-      border-radius: 8px;
+      border-radius: 12px;
       background:
         linear-gradient(90deg, transparent 0 45px, rgba(218, 151, 168, .28) 45px 46px, transparent 46px),
         repeating-linear-gradient(180deg, transparent 0 31px, rgba(159, 153, 155, .14) 31px 32px),
@@ -1206,15 +1209,146 @@
     }
     .letter-paper > * { opacity: 0; transform: translateY(9px); }
     .letter-box[open] .letter-paper > * { animation: letter-line-arrive .7s ease both; }
-    .letter-box[open] .letter-paper > *:nth-child(1) { animation-delay: .28s; }
-    .letter-box[open] .letter-paper > *:nth-child(2) { animation-delay: .48s; }
-    .letter-box[open] .letter-paper > *:nth-child(3) { animation-delay: .68s; }
-    .letter-box[open] .letter-paper > *:nth-child(4) { animation-delay: .88s; }
-    .paper-mark { margin: 0 0 17px; color: #b97694; font-size: .68rem; letter-spacing: .23em; text-transform: uppercase; }
-    .letter-salutation { margin: 0 0 15px; color: #694d5a; font-size: 1.18rem; }
-    .message-placeholder { min-height: 112px; margin: 0; color: #806f74; font-size: 1.08rem; font-style: italic; line-height: 2; }
-    .letter-signoff { margin: 23px 0 0; color: #745464; font-style: italic; text-align: right; }
-    .letter-footnote { margin: 19px 0 0; color: rgba(255, 239, 231, .58); font-size: .74rem; letter-spacing: .04em; }
+    .letter-box[open] .letter-paper > *:nth-child(1) { animation-delay: .25s; }
+    .letter-box[open] .letter-paper > *:nth-child(2) { animation-delay: .45s; }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed rgba(210, 160, 180, .4);
+    }
+    .sheet-header .paper-mark {
+      margin: 0;
+      color: #b97694;
+      font-size: .72rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .sheet-pills {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .sheet-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 27px;
+      height: 27px;
+      padding: 0;
+      border: 1px solid rgba(185, 118, 148, .35);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .82);
+      color: #8c5b74;
+      font-family: inherit;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(120, 60, 90, .08);
+      transition: all .25s ease;
+    }
+    .sheet-pill:hover {
+      background: #fff;
+      border-color: #b97694;
+      transform: translateY(-1px);
+    }
+    .sheet-pill.active {
+      background: linear-gradient(135deg, #d896b0, #b26888);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 3px 10px rgba(178, 104, 136, .4);
+      transform: scale(1.1);
+    }
+
+    .sheet-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .letter-sheet {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+    }
+    .letter-sheet.active {
+      display: flex;
+      animation: sheet-arrive .42s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .letter-salutation { margin: 0 0 16px; color: #694d5a; font-size: 1.22rem; font-weight: 600; }
+    .letter-body { margin: 0; color: #4e3f47; font-size: clamp(0.96rem, 2.2vw, 1.04rem); line-height: 1.95; }
+    .letter-body p { margin: 0 0 18px; }
+    .letter-body p:last-child { margin-bottom: 0; }
+    .letter-signoff { margin: 24px 0 0; color: #745464; text-align: right; line-height: 1.65; }
+    .letter-signoff p { margin: 0; font-style: italic; }
+    .letter-signoff .signer { margin-top: 6px; font-weight: 600; font-style: normal; color: #5a3d4d; }
+
+    .sheet-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 22px;
+    }
+    .sheet-nav-end {
+      justify-content: flex-end;
+    }
+    .sheet-nav-split {
+      justify-content: space-between;
+    }
+    .sheet-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border: 1px solid rgba(185, 118, 148, .38);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .88);
+      color: #694d5a;
+      font-family: inherit;
+      font-size: .88rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(120, 60, 90, .08);
+      transition: all .25s cubic-bezier(.2,.8,.2,1);
+    }
+    .sheet-btn:hover {
+      background: #fff;
+      border-color: #b97694;
+      color: #4a2f3d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(178, 104, 136, .22);
+    }
+    .sheet-btn.next-sheet {
+      background: linear-gradient(135deg, rgba(235, 180, 198, .35), rgba(215, 150, 175, .45));
+      border-color: rgba(185, 118, 148, .55);
+      font-weight: 600;
+    }
+    .sheet-btn.next-sheet:hover {
+      background: linear-gradient(135deg, rgba(235, 180, 198, .5), rgba(215, 150, 175, .6));
+    }
+    .sheet-btn.close-sheet {
+      background: linear-gradient(135deg, #dfa8bd, #b87395);
+      color: #fff;
+      border-color: transparent;
+      font-weight: 600;
+      box-shadow: 0 3px 12px rgba(184, 115, 149, .35);
+    }
+    .sheet-btn.close-sheet:hover {
+      background: linear-gradient(135deg, #e4b4c7, #c27ea0);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 16px rgba(184, 115, 149, .45);
+    }
+
+    @keyframes sheet-arrive {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     @keyframes starlight { to { background-position: 0 310px; } }
     @keyframes cover-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-7px) scale(1.04); } }
@@ -1247,8 +1381,8 @@
       .letter-screen { padding: 78px 16px 34px; place-items: start center; }
       .letter-back { position: absolute; top: 16px; left: 16px; min-height: 38px; }
       .letter-heading { margin-bottom: 17px; }
-      .envelope-scene { width: min(78vw, 350px); height: 204px; }
-      .letter-paper { margin-top: 20px; padding-left: 38px; background-position: left top; }
+      .letter-paper { margin-top: 20px; padding: 22px 18px 24px 34px; min-height: 440px; background-position: left top; }
+      .sheet-btn { padding: 7px 14px; font-size: .82rem; }
     }
     @media (max-height: 650px) and (min-width: 651px) {
       .garden-heading { top: 4vh; }
@@ -1747,14 +1881,60 @@
           <span class="envelope-label closed-envelope-label">Bấm để mở bức thư <span aria-hidden="true">✧</span></span>
           <span class="envelope-label open-envelope-label">Gấp thư lại</span>
         </summary>
-        <article class="letter-paper">
-          <p class="paper-mark">Một lời nhắn từ trái tim</p>
-          <p class="letter-salutation">Gửi bạn,</p>
-          <p class="message-placeholder">Lời nhắn của bạn sẽ được đặt ở đây.<br>Khi sẵn sàng, hãy gửi mình nội dung — mình sẽ giúp bạn trình bày thành một bức thư thật đẹp.</p>
-          <p class="letter-signoff">Thân thương,</p>
+        <article class="letter-paper" id="letterPaper">
+          <header class="sheet-header">
+            <p class="paper-mark">Một lời nhắn từ trái tim</p>
+            <div class="sheet-pills" role="tablist" aria-label="Các trang thư">
+              <button type="button" class="sheet-pill active" data-sheet-target="1" aria-label="Trang 1" title="Trang 1" aria-selected="true">1</button>
+              <button type="button" class="sheet-pill" data-sheet-target="2" aria-label="Trang 2" title="Trang 2" aria-selected="false">2</button>
+              <button type="button" class="sheet-pill" data-sheet-target="3" aria-label="Trang 3" title="Trang 3" aria-selected="false">3</button>
+            </div>
+          </header>
+
+          <div class="sheet-container">
+            <!-- Sheet 1: Lời chào và chúc 20/10 -->
+            <section class="letter-sheet active" data-sheet="1" aria-label="Trang 1: Lời chúc 20/10">
+              <p class="letter-salutation">Gửi người tôm yêu,</p>
+              <div class="letter-body">
+                <p>Trong thư này, tôm sẽ xưng là tôm nhá, tôm cũng muốn một cách xưng hô đặc biệt hơn nhưng lại nghĩ, có lẽ &ldquo;tôm&rdquo; mới là điều quen thuộc nhất với Iu, không chỉ là mới đây mà còn là tiếp nối từ những ngày xưa.</p>
+                <p>Chào Iu, nếu đúng theo kế hoạch của tôm thì Iu sẽ đọc thư này vào ngày 20/10, còn tôm giờ là một tuần trước ngày đó. Mới chỉ qua vài hôm từ lúc hai đứa mình là người yêu, trong tôm vẫn còn đầy điều diệu kỳ và khó tin, có lẽ Iu của khoảnh khắc này cũng như vậy.</p>
+                <p>Ngày 20/10, chúc Iu của tôm luôn mạnh khỏe, tràn đầy năng lượng tích cực, luôn xinh xắn, đáng yêu và mọi điều tốt đẹp sẽ đến với Iu &mdash; vì Iu xứng đáng còn nhiều hơn thế nữa. Tôm không biết 20/10 của Iu sẽ thế nào ehehehe, hy vọng tôm của ngày hôm đó đã làm Iu cảm thấy vui, vì ngày của Iu mà. Chúc Iu mọi thứ, chúc cho tình yêu tụi mình mãi sẽ như mặt trời &mdash; tỏa sáng và trường tồn.</p>
+              </div>
+              <div class="sheet-nav sheet-nav-end">
+                <button type="button" class="sheet-btn next-sheet" data-sheet-goto="2">Đọc tiếp trang 2 <span aria-hidden="true">&rarr;</span></button>
+              </div>
+            </section>
+
+            <!-- Sheet 2: Nốt chuyển tâm tư & Kỷ niệm -->
+            <section class="letter-sheet" data-sheet="2" aria-label="Trang 2: Nốt chuyển tâm tư">
+              <div class="letter-body">
+                <p>Ban đầu thư này viết để dành cho 20/10, nhưng tôm nghĩ tôm còn nhiều điều nữa muốn nói với Iu...</p>
+                <p>Thật ra đến tận lúc đang ngồi gõ những dòng này, tôm thỉnh thoảng vẫn thấy như một giấc mơ vậy. Tụi mình có những câu chuyện đẹp từ trước, đi qua một đoạn đường dài, để rồi đến hôm nay, tôm lại được gọi Iu bằng hai tiếng &ldquo;người yêu&rdquo;. Cảm giác vừa quen, vừa lạ, vừa bình yên đến khó tả.</p>
+              </div>
+              <div class="sheet-nav sheet-nav-split">
+                <button type="button" class="sheet-btn prev-sheet" data-sheet-goto="1"><span aria-hidden="true">&larr;</span> Trang 1</button>
+                <button type="button" class="sheet-btn next-sheet" data-sheet-goto="3">Đọc tiếp trang 3 <span aria-hidden="true">&rarr;</span></button>
+              </div>
+            </section>
+
+            <!-- Sheet 3: Lời cảm ơn, lời hứa & Ký tên -->
+            <section class="letter-sheet" data-sheet="3" aria-label="Trang 3: Lời cảm ơn và lời hứa">
+              <div class="letter-body">
+                <p>Cảm ơn Iu... vì đã dũng cảm, kiên trì với kế hoạch của mình, để một lần nữa tôm cảm thấy được yêu, được quan tâm, được thấu hiểu. Cảm ơn vì cơ hội lần hai để tôm được ở bên cạnh, lắng nghe, chia sẻ và hơn cả &mdash; được yêu Iu thêm một lần nữa.</p>
+                <p>Tôm có nói với Chuy, ở lần kết thúc trước, tôm bảo đoạn thời gian đó là một chương sách đẹp, nhưng cũng phải kết thúc. Bây giờ, tôm muốn được viết tiếp những câu chuyện dang dở đó lần nữa, tôm sẽ làm tốt hơn, yêu Iu hơn, tinh tế hơn. Tôm chưa dám hứa quá nhiều điều xa xôi... tôm sẽ cố gắng hết sức, nghiêm túc hết mức, vì tình yêu chúng mình. Cảm ơn Iu, vì đã đến với tôm lần nữa...</p>
+              </div>
+              <div class="letter-signoff">
+                <p>Tôm yêu Iu, hoàng hậu của tui,</p>
+                <p class="signer">Người yêu của Iu &hearts;</p>
+              </div>
+              <div class="sheet-nav sheet-nav-split">
+                <button type="button" class="sheet-btn prev-sheet" data-sheet-goto="2"><span aria-hidden="true">&larr;</span> Trang 2</button>
+                <button type="button" class="sheet-btn close-sheet" data-sheet-action="close">Gấp thư lại <span aria-hidden="true">✿</span></button>
+              </div>
+            </section>
+          </div>
         </article>
       </details>
-      <p class="letter-footnote">Đây là chỗ giữ lời nhắn tạm thời; mình sẽ thay bằng nội dung bạn gửi sau.</p>
     </div>
   </section>
   <script>
@@ -2598,8 +2778,57 @@
           if (gardenHint && gardenHint.open) gardenHint.open = false;
         }
       });
+      // Multi-sheet letter navigation
+      const letterSheets = [...document.querySelectorAll(".letter-sheet")];
+      const sheetPills = [...document.querySelectorAll(".sheet-pill")];
+      const letterPaper = document.getElementById("letterPaper");
+
+      function showLetterSheet(pageNumber, playSound = true) {
+        const targetPage = Math.max(1, Math.min(letterSheets.length, Number(pageNumber)));
+        letterSheets.forEach(sheet => {
+          const isTarget = Number(sheet.dataset.sheet) === targetPage;
+          sheet.classList.toggle("active", isTarget);
+        });
+        sheetPills.forEach(pill => {
+          const isTarget = Number(pill.dataset.sheetTarget) === targetPage;
+          pill.classList.toggle("active", isTarget);
+          pill.setAttribute("aria-selected", isTarget ? "true" : "false");
+        });
+        if (playSound) playChime();
+        letterPaper?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      document.querySelectorAll("[data-sheet-goto]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = btn.dataset.sheetGoto;
+          showLetterSheet(target, true);
+        });
+      });
+
+      sheetPills.forEach(pill => {
+        pill.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = pill.dataset.sheetTarget;
+          showLetterSheet(target, true);
+        });
+      });
+
+      document.querySelectorAll("[data-sheet-action='close']").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (messageLetter) {
+            messageLetter.open = false;
+            setTimeout(() => showLetterSheet(1, false), 450);
+          }
+        });
+      });
+
       messageLetter?.addEventListener("toggle", () => {
-        if (messageLetter.open) playChime();
+        if (messageLetter.open) {
+          showLetterSheet(1, false);
+          playChime();
+        }
       });
       syncScreenSound();
       updateLyricUI();
