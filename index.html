@@ -950,22 +950,30 @@
     .flower-note-card {
       position: absolute;
       z-index: 15;
-      top: 57%;
+      top: 54%;
       left: 50%;
-      width: min(390px, calc(100vw - 36px));
-      padding: 25px 28px 24px;
+      width: min(390px, calc(100vw - 32px));
+      max-height: min(86vh, 620px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 24px 26px 20px;
       border: 1px solid rgba(255, 229, 215, .34);
       border-radius: 20px;
       color: #fff6ec;
       text-align: center;
-      background: linear-gradient(145deg, rgba(43, 31, 57, .94), rgba(53, 42, 62, .91));
-      box-shadow: 0 22px 75px rgba(9, 6, 20, .42), inset 0 1px 0 rgba(255,255,255,.06);
-      backdrop-filter: blur(16px);
+      background: linear-gradient(145deg, rgba(43, 31, 57, .96), rgba(53, 42, 62, .93));
+      box-shadow: 0 22px 75px rgba(9, 6, 20, .45), inset 0 1px 0 rgba(255,255,255,.07);
+      backdrop-filter: blur(18px);
       transform: translate(-50%, -50%);
       animation: note-arrive .45s cubic-bezier(.2,.75,.2,1) both;
+      cursor: pointer;
     }
+    .flower-note-card::-webkit-scrollbar { width: 4px; }
+    .flower-note-card::-webkit-scrollbar-thumb { background: rgba(255, 220, 200, .28); border-radius: 999px; }
+    .flower-note-card::-webkit-scrollbar-track { background: transparent; }
     .flower-note-card[hidden] { display: none; }
-    .flower-note-card:focus { outline: 2px solid rgba(255, 228, 173, .7); outline-offset: 4px; }
+    .flower-note-card:focus-visible { outline: 2px solid rgba(255, 228, 173, .7); outline-offset: 4px; }
+    .flower-note-card:focus:not(:focus-visible) { outline: none; }
     .memory-bloom {
       position: relative;
       width: 106px;
@@ -1090,7 +1098,155 @@
         animation: none;
       }
     }
-    .flower-note-hint { margin: 14px 0 0; color: rgba(255, 228, 203, .67); font-size: .75rem; letter-spacing: .02em; }
+    .flower-note-part {
+      display: none;
+      margin: 8px 0;
+    }
+    .flower-note-part.is-visible {
+      display: block;
+      animation: notePartFadeIn .42s cubic-bezier(.16,.84,.2,1) both;
+    }
+    @keyframes notePartFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .flower-note-nav {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .flower-note-progress-dots {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 2px;
+    }
+    .flower-note-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .25);
+      transition: all .35s cubic-bezier(.2,.8,.2,1);
+    }
+    .flower-note-dot.active {
+      width: 18px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ec87ae, #f6d36c);
+      box-shadow: 0 0 10px rgba(246, 211, 108, .65);
+    }
+
+    .flower-note-step-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 18px;
+      border: 1px solid rgba(255, 228, 212, .55);
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(236, 135, 174, .32), rgba(246, 211, 108, .22));
+      color: #fff9f2;
+      font: inherit;
+      font-size: .88rem;
+      font-weight: 500;
+      letter-spacing: .02em;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(11, 8, 23, .28), inset 0 0 12px rgba(255, 255, 255, .15);
+      backdrop-filter: blur(8px);
+      transition: transform .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease;
+      animation: stepBtnPulse 2.8s ease-in-out infinite;
+    }
+    .flower-note-step-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      border-color: rgba(255, 240, 220, .9);
+      background: linear-gradient(135deg, rgba(236, 135, 174, .45), rgba(246, 211, 108, .35));
+      box-shadow: 0 6px 24px rgba(246, 211, 108, .45);
+    }
+    .flower-note-step-btn:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+    }
+    @keyframes stepBtnPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 16px rgba(236, 135, 174, .25);
+      }
+      50% {
+        transform: scale(1.03);
+        box-shadow: 0 6px 22px rgba(246, 211, 108, .42);
+      }
+    }
+    .step-btn-hand {
+      display: inline-block;
+      font-size: .98rem;
+      animation: tapBounce 1.5s ease-in-out infinite;
+    }
+    @keyframes tapBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    .step-btn-badge {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .22);
+      color: #ffe6aa;
+      font-size: .78rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .step-btn-arrow {
+      font-size: .84rem;
+      color: #ffd8a8;
+      transition: transform .2s ease;
+    }
+    .flower-note-step-btn:hover .step-btn-arrow {
+      transform: translateX(3px);
+    }
+
+    .flower-note-guide-tip {
+      margin: 3px 0 0;
+      color: rgba(255, 235, 210, .85);
+      font-size: .78rem;
+      letter-spacing: .02em;
+      font-style: italic;
+    }
+
+    .flower-note-finished-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: .84rem;
+      font-weight: 500;
+      color: #ffe8ba;
+      background: linear-gradient(135deg, rgba(246, 211, 108, .2), rgba(236, 135, 174, .2));
+      border: 1px solid rgba(255, 225, 171, .45);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
+      animation: notePartFadeIn .4s ease both;
+    }
+    .flower-note-finished-badge[hidden] {
+      display: none;
+    }
+
+    .flower-note-hint { margin: 10px 0 0; color: rgba(255, 228, 203, .67); font-size: .75rem; letter-spacing: .02em; }
+    @media (prefers-reduced-motion: reduce) {
+      .flower-note-part.is-visible { animation: none; }
+      .flower-note-step-btn { animation: none; }
+      .step-btn-hand { animation: none; }
+    }
     .flower-note-close {
       position: absolute;
       top: 10px;
@@ -1377,7 +1533,8 @@
       .flower-row { left: -8%; width: 116%; }
       .flower-item { width: var(--mobile-w, var(--w)); }
       .continue-link { bottom: 24px; min-height: 46px; padding-inline: 19px; font-size: .84rem; }
-      .flower-note-card { top: 58%; padding: 24px 22px 21px; }
+      .flower-note-card { top: 54%; padding: 20px 18px 18px; width: min(360px, calc(100vw - 28px)); max-height: min(84vh, 580px); }
+      .flower-note-step-btn { font-size: .84rem; min-height: 40px; padding: 0 15px; }
       .letter-screen { padding: 78px 16px 34px; place-items: start center; }
       .letter-back { position: absolute; top: 16px; left: 16px; min-height: 38px; }
       .letter-heading { margin-bottom: 17px; }
@@ -1804,10 +1961,24 @@
       <p class="flower-note-kicker">GIÃI BÀY</p>
       <h2 id="flowerNoteTitle1">29/05/2025</h2>
       <div class="flower-note-message" id="flowerNoteMessage1">
-        <p>Iu biết hong, hồi xưa á, tôm lúc nào cũng ước là sẽ có 1 lúc nào đó đc ngồi lại vs iu để được nói ra hết mọi điều dang dở và được nghe những điều còn chưa nói.</p>
-        <p>Ờmm, tôm tưởng là khoảnh khắc đó sẽ khó đến được, tôm cũng không kỳ vọng gì 
-          nhiều từ rất lâu ời. Ngày hôm đó nếu iu không nhớ thì là lúc mình gửi mail cho nhau, là cơ hội để tôm giãi bày và nghe iu nói. Với tôm thì khoảnh khắc ngày hôm đó là khởi đầu của tụi mình hôm nay á!!!
-        </p>
+        <p class="flower-note-part">Iu biết hong, hồi xưa á, tôm lúc nào cũng ước là sẽ có 1 lúc nào đó đc ngồi lại vs iu để được nói ra hết mọi điều dang dở và được nghe những điều còn chưa nói.</p>
+        <p class="flower-note-part">Ờmm, tôm tưởng là khoảnh khắc đó sẽ khó đến được, tôm cũng không kỳ vọng gì nhiều từ rất lâu ời.</p>
+        <p class="flower-note-part">Ngày hôm đó nếu iu không nhớ thì là lúc mình gửi mail cho nhau, là cơ hội để tôm giãi bày và nghe iu nói. Với tôm thì khoảnh khắc ngày hôm đó là khởi đầu của tụi mình hôm nay á!!!</p>
+      </div>
+      <div class="flower-note-nav">
+        <div class="flower-note-progress-dots" aria-hidden="true">
+          <span class="flower-note-dot active"></span>
+          <span class="flower-note-dot"></span>
+          <span class="flower-note-dot"></span>
+        </div>
+        <button type="button" class="flower-note-step-btn" data-step-flower-note aria-label="Chạm để xem phần tiếp theo">
+          <span class="step-btn-hand" aria-hidden="true">👆</span>
+          <span class="step-btn-text">Chạm vào đây để đọc tiếp nha</span>
+          <span class="step-btn-badge">1/3</span>
+          <span class="step-btn-arrow" aria-hidden="true">➔</span>
+        </button>
+        <p class="flower-note-guide-tip">✨ Iu nhớ chạm vào thẻ để mở tiếp các dòng nhắn nhé</p>
+        <div class="flower-note-finished-badge" hidden>✿ Đã xem trọn vẹn lời nhắn ✿</div>
       </div>
       <p class="flower-note-hint">Iu nhớ đóng thẻ nhá, còn nhiều điều đợi Iu.</p>
     </aside>
@@ -1819,10 +1990,24 @@
       <p class="flower-note-kicker">RỐI BỜI</p>
       <h2 id="flowerNoteTitle2">25/06/2026</h2>
       <div class="flower-note-message" id="flowerNoteMessage2">
-        <p>Đố iu nhớ ra đây là ngày gì....</p>
-        <p>Đây là cái lần :"Em đau" á. Đến giờ tôm vẫn không biết lúc đó mình nghĩ gì, hoặc có lẽ là không nghĩ gì cả. Ngày hôm đó có lẽ là lúc mà trái tim này của tôm thật sự loạn nhịp, 
-          giờ nghĩ lại chắc đó là lúc con tym nhận ra nó còn những điều đặc biệt dành cho Iu, nó cũng muốn viết tiếp những gì còn dang dở, những lời hứa còn bỏ ngỏ đó.
-        </p>
+        <p class="flower-note-part">Đố iu nhớ ra đây là ngày gì....</p>
+        <p class="flower-note-part">Đây là cái lần :"Em đau" á. Đến giờ tôm vẫn không biết lúc đó mình nghĩ gì, hoặc có lẽ là không nghĩ gì cả.</p>
+        <p class="flower-note-part">Ngày hôm đó có lẽ là lúc mà trái tim này của tôm thật sự loạn nhịp, giờ nghĩ lại chắc đó là lúc con tym nhận ra nó còn những điều đặc biệt dành cho Iu, nó cũng muốn viết tiếp những gì còn dang dở, những lời hứa còn bỏ ngỏ đó.</p>
+      </div>
+      <div class="flower-note-nav">
+        <div class="flower-note-progress-dots" aria-hidden="true">
+          <span class="flower-note-dot active"></span>
+          <span class="flower-note-dot"></span>
+          <span class="flower-note-dot"></span>
+        </div>
+        <button type="button" class="flower-note-step-btn" data-step-flower-note aria-label="Chạm để xem phần tiếp theo">
+          <span class="step-btn-hand" aria-hidden="true">👆</span>
+          <span class="step-btn-text">Chạm vào đây để đọc tiếp nha</span>
+          <span class="step-btn-badge">1/3</span>
+          <span class="step-btn-arrow" aria-hidden="true">➔</span>
+        </button>
+        <p class="flower-note-guide-tip">✨ Iu nhớ chạm vào thẻ để mở tiếp các dòng nhắn nhé</p>
+        <div class="flower-note-finished-badge" hidden>✿ Đã xem trọn vẹn lời nhắn ✿</div>
       </div>
       <p class="flower-note-hint">Iu nhớ đóng thẻ nhá, còn nhiều điều đợi Iu.</p>
     </aside>
@@ -1834,10 +2019,24 @@
       <p class="flower-note-kicker">TRÂN TRỌNG</p>
       <h2 id="flowerNoteTitle3">30/08/2026</h2>
       <div class="flower-note-message" id="flowerNoteMessage3">
-        <p>Cái này thì chắc dễ hơn nè, turning point đó!</p>
-        <p>Tôm để tên cái lời nhắn này là: "Trân trọng" bởi đó cũng là cảm xúc chính của tôm ngày hôm đó. Lần hiếm hoi tôm cảm thấy bản thân mình được trân trọng, được yêu, được thương và được đồng cảm
-          Lời nói, sự quan tâm, từng cử chỉ của người đến lúc đó chứng minh cho tôm thấy người thương tôm, nghiêm túc với tôm.... và tôm cũng muốn đáp lại tình cảm chân thành ấy - một cách thật sự nghiêm túc.
-        </p>
+        <p class="flower-note-part">Cái này thì chắc dễ hơn nè, turning point đó!</p>
+        <p class="flower-note-part">Tôm để tên cái lời nhắn này là: "Trân trọng" bởi đó cũng là cảm xúc chính của tôm ngày hôm đó. Lần hiếm hoi tôm cảm thấy bản thân mình được trân trọng, được yêu, được thương và được đồng cảm</p>
+        <p class="flower-note-part">Lời nói, sự quan tâm, từng cử chỉ của người đến lúc đó chứng minh cho tôm thấy người thương tôm, nghiêm túc với tôm.... và tôm cũng muốn đáp lại tình cảm chân thành ấy - một cách thật sự nghiêm túc.</p>
+      </div>
+      <div class="flower-note-nav">
+        <div class="flower-note-progress-dots" aria-hidden="true">
+          <span class="flower-note-dot active"></span>
+          <span class="flower-note-dot"></span>
+          <span class="flower-note-dot"></span>
+        </div>
+        <button type="button" class="flower-note-step-btn" data-step-flower-note aria-label="Chạm để xem phần tiếp theo">
+          <span class="step-btn-hand" aria-hidden="true">👆</span>
+          <span class="step-btn-text">Chạm vào đây để đọc tiếp nha</span>
+          <span class="step-btn-badge">1/3</span>
+          <span class="step-btn-arrow" aria-hidden="true">➔</span>
+        </button>
+        <p class="flower-note-guide-tip">✨ Iu nhớ chạm vào thẻ để mở tiếp các dòng nhắn nhé</p>
+        <div class="flower-note-finished-badge" hidden>✿ Đã xem trọn vẹn lời nhắn ✿</div>
       </div>
       <p class="flower-note-hint">Iu nhớ đóng thẻ nhá, còn nhiều điều đợi Iu.</p>
     </aside>
@@ -1849,13 +2048,30 @@
       <p class="flower-note-kicker">CHUỖI KỶ NIỆM · 4 / 4</p>
       <h2 id="flowerNoteTitle4">11/10/2026</h2>
       <div class="flower-note-message" id="flowerNoteMessage4">
-        <p>Tôm cố nghĩ một cái tên cho ngày hôm đó nhưng mà suy đi nghĩ lại chắc cũng chỉ có từ này. Tôm thấy nó diệu kỳ thật á, tại chỗ đó, khoảnh khắc đó, có tôm và iu....</p>
-        <p>Tôm cũng muốn là người nói ra, nhưng mà người nói mất ùi, biết đâu đó lại là điều diệu kỳ nhất. Nhưng mà nếu được quay lại lúc đó, tôm sẽ nói làaaa</p> 
-        <p class="special-confession">
-          <span class="confession-heart" aria-hidden="true">♥</span>
-          <span class="confession-text">Bé làm người yêu anh nhá</span>
-          <span class="confession-heart" aria-hidden="true">♥</span>
-        </p> 
+        <p class="flower-note-part">Tôm cố nghĩ một cái tên cho ngày hôm đó nhưng mà suy đi nghĩ lại chắc cũng chỉ có từ này. Tôm thấy nó diệu kỳ thật á, tại chỗ đó, khoảnh khắc đó, có tôm và iu....</p>
+        <p class="flower-note-part">Tôm cũng muốn là người nói ra, nhưng mà người nói mất ùi, biết đâu đó lại là điều diệu kỳ nhất. Nhưng mà nếu được quay lại lúc đó, tôm sẽ nói làaaa</p>
+        <div class="flower-note-part">
+          <p class="special-confession">
+            <span class="confession-heart" aria-hidden="true">♥</span>
+            <span class="confession-text">Bé làm người yêu anh nhá</span>
+            <span class="confession-heart" aria-hidden="true">♥</span>
+          </p>
+        </div>
+      </div>
+      <div class="flower-note-nav">
+        <div class="flower-note-progress-dots" aria-hidden="true">
+          <span class="flower-note-dot active"></span>
+          <span class="flower-note-dot"></span>
+          <span class="flower-note-dot"></span>
+        </div>
+        <button type="button" class="flower-note-step-btn" data-step-flower-note aria-label="Chạm để xem phần tiếp theo">
+          <span class="step-btn-hand" aria-hidden="true">👆</span>
+          <span class="step-btn-text">Chạm vào đây để đọc tiếp nha</span>
+          <span class="step-btn-badge">1/3</span>
+          <span class="step-btn-arrow" aria-hidden="true">➔</span>
+        </button>
+        <p class="flower-note-guide-tip">✨ Iu nhớ chạm vào thẻ để mở tiếp các dòng nhắn nhé</p>
+        <div class="flower-note-finished-badge" hidden>✿ Đã xem trọn vẹn lời nhắn ✿</div>
       </div>
       <p class="flower-note-hint">Iu nhớ đóng thẻ nhá, còn nhiều điều đợi Iu.</p>
     </aside>
@@ -2726,14 +2942,106 @@
       document.addEventListener("pointerdown", resumeAudioForCurrentScreen, true);
       document.addEventListener("keydown", resumeAudioForCurrentScreen, true);
 
+      function setFlowerNoteStep(card, step, playSound = false) {
+        if (!card) return;
+        const parts = [...card.querySelectorAll(".flower-note-part")];
+        const dots = [...card.querySelectorAll(".flower-note-dot")];
+        const stepBtn = card.querySelector("[data-step-flower-note]");
+        const guideTip = card.querySelector(".flower-note-guide-tip");
+        const finishedBadge = card.querySelector(".flower-note-finished-badge");
+        const closingHint = card.querySelector(".flower-note-hint");
+        const total = parts.length;
+        if (total === 0) return;
+
+        const currentStep = Math.max(1, Math.min(total, step));
+        card.dataset.currentStep = String(currentStep);
+
+        parts.forEach((part, idx) => {
+          const isShown = idx < currentStep;
+          part.classList.toggle("is-visible", isShown);
+          if (isShown && idx === currentStep - 1 && playSound) {
+            try {
+              part.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            } catch (err) {}
+          }
+        });
+
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle("active", idx < currentStep);
+        });
+
+        const isLast = currentStep >= total;
+        if (stepBtn) {
+          stepBtn.hidden = isLast;
+          if (!isLast) {
+            const badge = stepBtn.querySelector(".step-btn-badge");
+            if (badge) badge.textContent = `${currentStep}/${total}`;
+            const text = stepBtn.querySelector(".step-btn-text");
+            if (text) {
+              text.textContent = (currentStep === total - 1) ? "Chạm để xem phần cuối nè" : "Chạm vào đây để đọc tiếp nha";
+            }
+          }
+        }
+        if (guideTip) {
+          guideTip.hidden = isLast;
+          if (!isLast) {
+            guideTip.textContent = (currentStep === total - 1)
+              ? "✨ Chạm tiếp để xem phần cuối nè"
+              : "✨ Iu nhớ chạm vào thẻ để mở tiếp các dòng nhắn nhé";
+          }
+        }
+        if (finishedBadge) {
+          finishedBadge.hidden = !isLast;
+        }
+        if (closingHint) {
+          closingHint.style.opacity = isLast ? "1" : "0.55";
+        }
+
+        card.style.cursor = isLast ? "default" : "pointer";
+
+        if (playSound) playChime();
+      }
+
+      function advanceFlowerNotePart(card) {
+        if (!card) return;
+        const parts = card.querySelectorAll(".flower-note-part");
+        if (!parts.length) return;
+        const currentStep = Number(card.dataset.currentStep || 1);
+        if (currentStep < parts.length) {
+          setFlowerNoteStep(card, currentStep + 1, true);
+        }
+      }
+
       function hideFlowerNote(returnFocus = true) {
         if (!activeMemoryCard && memoryCards.every(c => c.hidden)) return;
-        memoryCards.forEach(c => { c.hidden = true; });
+        memoryCards.forEach(c => {
+          c.hidden = true;
+          setFlowerNoteStep(c, 1, false);
+        });
         activeMemoryCard = null;
         activeMemoryFlower?.classList.remove("is-awake");
         if (returnFocus) activeMemoryFlower?.focus({ preventScroll: true });
         activeMemoryFlower = null;
       }
+
+      memoryCards.forEach(card => {
+        setFlowerNoteStep(card, 1, false);
+
+        card.addEventListener("click", (e) => {
+          if (e.target.closest("[data-close-flower-note]")) return;
+          const sel = window.getSelection();
+          if (sel && sel.toString().length > 0) return;
+          advanceFlowerNotePart(card);
+        });
+
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            if (e.target.closest("[data-close-flower-note]") || e.target.closest("[data-step-flower-note]")) return;
+            e.preventDefault();
+            advanceFlowerNotePart(card);
+          }
+        });
+      });
 
       memoryFlowers.forEach((flower, index) => flower.addEventListener("click", () => {
         if (activeMemoryCard || flower.disabled) return;
@@ -2749,6 +3057,7 @@
         const targetCard = memoryCards[index] || document.getElementById(`flowerNote${index + 1}`);
         if (!targetCard) return;
 
+        setFlowerNoteStep(targetCard, 1, false);
         targetCard.hidden = false;
         activeMemoryCard = targetCard;
         activeMemoryFlower = flower;
@@ -2757,7 +3066,10 @@
         playChime();
       }));
       document.querySelectorAll("[data-close-flower-note]").forEach(btn => {
-        btn.addEventListener("click", () => hideFlowerNote());
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          hideFlowerNote();
+        });
       });
       gardenHint?.addEventListener("toggle", () => {
         if (gardenHint.open) playChime();
