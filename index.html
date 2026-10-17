@@ -820,7 +820,7 @@
       z-index: 2;
       inset: 0;
       overflow: hidden;
-      pointer-events: none;
+      pointer-events: auto;
     }
     .meadow::before, .meadow::after {
       content: "";
@@ -862,7 +862,8 @@
     .flower-row-4 { --row-bottom: 42vh; --row-height: 37vh; --layer: 5; }
     .flower-row-5 { --row-bottom: 29vh; --row-height: 47vh; --layer: 6; }
     .flower-row-6 { --row-bottom: 14vh; --row-height: 52vh; --layer: 7; }
-    .flower-row-7 { --row-bottom: 0vh; --row-height: 51vh; --layer: 8; }
+    .flower-row-7 { --row-bottom: 0vh; --row-height: 51vh; --layer: 8; pointer-events: auto; }
+    .flower-row-7 > .flower-item:not(.memory-flower-trigger) { pointer-events: none; }
     .flower-item {
       position: absolute;
       left: var(--x);
@@ -877,6 +878,9 @@
     .memory-flower-trigger {
       display: block;
       z-index: 1;
+      opacity: 1;
+      transform: none;
+      animation: none;
       padding: 0;
       border: 0;
       color: inherit;
@@ -884,6 +888,8 @@
       appearance: none;
       cursor: pointer;
       pointer-events: auto;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .flower-item[hidden] { display: none !important; }
     .memory-flower-trigger:focus-visible {
@@ -904,11 +910,18 @@
     }
     .memory-flower-trigger:hover svg, .memory-flower-trigger:focus-visible svg { filter: drop-shadow(0 0 14px rgba(255, 222, 164, .85)); }
     .memory-flower-trigger.is-awake svg { filter: drop-shadow(0 0 15px rgba(255, 222, 164, .9)); }
-    .memory-flower-trigger:disabled { cursor: default; }
-    .memory-flower-trigger:disabled::after { content: none; animation: none; }
-    .memory-flower-trigger:disabled svg { filter: saturate(.68) brightness(.86); }
+    .memory-flower-trigger[aria-disabled="true"]::after { content: none; animation: none; }
+    .memory-flower-trigger[aria-disabled="true"] svg { filter: saturate(.68) brightness(.86); }
+    .memory-flower-trigger.is-guiding::after { font-size: 1.5rem; animation: glimmer .45s ease-in-out 4 alternate; }
     .flower-item svg { display: block; width: 100%; height: 100%; overflow: visible; }
     .flower-row-6 .flower-item svg, .flower-row-7 .flower-item svg { animation: flower-sway 6s ease-in-out 3s infinite; }
+    .flower-row-7 .memory-flower-trigger svg {
+      opacity: 0;
+      pointer-events: none;
+      transform-origin: 50% 100%;
+      animation: flower-rise 2.1s var(--delay, 0s) cubic-bezier(.16,.72,.16,1) forwards,
+        flower-sway 6s ease-in-out 3s infinite;
+    }
     .flower-row-far { filter: blur(.45px); opacity: .84; }
     .flower-row-near { filter: drop-shadow(0 -5px 24px rgba(29, 43, 39, .24)); }
     .flower-row-foreground { filter: drop-shadow(0 -8px 22px rgba(15, 38, 34, .3)); }
@@ -1697,7 +1710,7 @@
         <button type="button" class="garden-hint-close" data-close-garden-hint aria-label="Đóng gợi ý">×</button>
         <div class="garden-hint-badge" aria-hidden="true">GỢI Ý DÀNH CHO IU ✦</div>
         <p class="garden-hint-text" id="gardenHintTitle">
-          Trong khu vườn có những bông hoa đặc biệt, iu rà chuột và tìm ra nó nhá, có 4 bông hoa và iu phải mở theo đúng thứ tự đó nha.
+          Chạm bông hoa có dấu ✧ để đọc lời nhắn. Bắt đầu ở bông bên trái, rồi mở dần sang phải nha.
         </p>
       </div>
     </details>
@@ -1955,16 +1968,16 @@
       <span class="flower-item palette-blush" style="--x:15.25%;--w:15.85%;--mobile-w:17.85%;--h:88%;--delay:0.33s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
       <span class="flower-item palette-pink" style="--x:21.00%;--w:16.30%;--mobile-w:18.30%;--h:95%;--delay:0.40s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
       <span class="flower-item palette-red" style="--x:26.75%;--w:16.75%;--mobile-w:18.75%;--h:89%;--delay:0.47s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
-      <button type="button" class="flower-item memory-flower-trigger palette-pink" data-memory-flower data-memory-index="1" disabled style="--x:32.50%;--w:15.85%;--mobile-w:17.85%;--h:96%;--delay:0.54s" aria-label="Mở kỷ niệm 2 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></button>
+      <button type="button" class="flower-item memory-flower-trigger palette-pink" data-memory-flower data-memory-index="1" aria-disabled="true" style="--x:32.50%;--w:15.85%;--mobile-w:17.85%;--h:96%;--delay:0.54s" aria-label="Mở kỷ niệm 2 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></button>
       <span class="flower-item palette-pink" style="--x:38.25%;--w:16.30%;--mobile-w:18.30%;--h:90%;--delay:0.61s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
       <span class="flower-item palette-coral" style="--x:44.00%;--w:16.75%;--mobile-w:18.75%;--h:97%;--delay:0.68s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
-      <button type="button" class="flower-item memory-flower-trigger palette-coral" data-memory-flower data-memory-index="2" disabled style="--x:49.75%;--w:15.85%;--mobile-w:17.85%;--h:91%;--delay:0.75s" aria-label="Mở kỷ niệm 3 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></button>
+      <button type="button" class="flower-item memory-flower-trigger palette-coral" data-memory-flower data-memory-index="2" aria-disabled="true" style="--x:49.75%;--w:15.85%;--mobile-w:17.85%;--h:91%;--delay:0.75s" aria-label="Mở kỷ niệm 3 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></button>
       <span class="flower-item palette-white" style="--x:55.50%;--w:16.30%;--mobile-w:18.30%;--h:98%;--delay:0.82s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
       <span class="flower-item palette-pink" style="--x:61.25%;--w:16.75%;--mobile-w:18.75%;--h:92%;--delay:0.89s"><svg viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></span>
       <span class="flower-item palette-red" style="--x:67.00%;--w:15.85%;--mobile-w:17.85%;--h:99%;--delay:0.96s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
       <span class="flower-item palette-white" style="--x:72.75%;--w:16.30%;--mobile-w:18.30%;--h:93%;--delay:1.03s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
       <span class="flower-item palette-coral" style="--x:78.50%;--w:16.75%;--mobile-w:18.75%;--h:100%;--delay:1.10s"><svg viewBox="0 0 100 230"><use href="#daisyFlower" /></svg></span>
-      <button type="button" class="flower-item memory-flower-trigger palette-purple" data-memory-flower data-memory-index="3" disabled style="--x:84.25%;--w:15.85%;--mobile-w:17.85%;--h:94%;--delay:1.17s" aria-label="Mở kỷ niệm 4 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></button>
+      <button type="button" class="flower-item memory-flower-trigger palette-purple" data-memory-flower data-memory-index="3" aria-disabled="true" style="--x:84.25%;--w:15.85%;--mobile-w:17.85%;--h:94%;--delay:1.17s" aria-label="Mở kỷ niệm 4 sau khi mở hoa trước"><svg aria-hidden="true" viewBox="0 0 100 230"><use href="#cosmosFlower" /></svg></button>
       <span class="flower-item palette-blush" style="--x:90.00%;--w:16.30%;--mobile-w:18.30%;--h:88%;--delay:1.24s"><svg viewBox="0 0 100 230"><use href="#tulipFlower" /></svg></span>
       <span class="flower-item palette-white" style="--x:95.75%;--w:16.75%;--mobile-w:18.75%;--h:95%;--delay:1.31s"><svg viewBox="0 0 100 230"><use href="#poppyFlower" /></svg></span>
     </div>
@@ -2916,8 +2929,8 @@
           if (audioContext && audioContext.state === "suspended") {
             audioContext.resume().catch(() => {});
           }
-          startGardenSoundscape(false);
-          playGardenMusic(false);
+          if (!gardenSoundscapeActive) startGardenSoundscape(false);
+          else if (gardenMusic.paused) playGardenMusic(false);
         } else {
           if (!userPausedCoverMusic && !event?.target?.closest?.("#coverAudioPill")) {
             startCoverMusic();
@@ -3044,12 +3057,34 @@
         });
       });
 
-      memoryFlowers.forEach((flower, index) => flower.addEventListener("click", () => {
-        if (activeMemoryCard || flower.disabled) return;
+      let flowerGuideTimer = 0;
+      memoryFlowers.forEach((flower, index) => flower.addEventListener("click", (event) => {
+        if (flower.getAttribute("aria-disabled") === "true") {
+          event.stopPropagation();
+          if (activeMemoryCard) hideFlowerNote(false);
+          if (gardenHint) gardenHint.open = true;
+          const nextFlower = memoryFlowers[highestOpenedMemory + 1];
+          memoryFlowers.forEach(candidate => candidate.classList.remove("is-guiding"));
+          if (nextFlower) {
+            void nextFlower.offsetWidth;
+            nextFlower.classList.add("is-guiding");
+            window.clearTimeout(flowerGuideTimer);
+            flowerGuideTimer = window.setTimeout(() => nextFlower.classList.remove("is-guiding"), 2000);
+          }
+          return;
+        }
+        if (activeMemoryCard) {
+          const isSameFlower = activeMemoryFlower === flower;
+          hideFlowerNote(isSameFlower);
+          if (isSameFlower) return;
+        }
+        if (gardenHint) gardenHint.open = false;
+        window.clearTimeout(flowerGuideTimer);
+        memoryFlowers.forEach(candidate => candidate.classList.remove("is-guiding"));
         highestOpenedMemory = Math.max(highestOpenedMemory, index);
         memoryFlowers.forEach((candidate, candidateIndex) => {
           const unlocked = candidateIndex <= highestOpenedMemory + 1;
-          candidate.disabled = !unlocked;
+          candidate.setAttribute("aria-disabled", String(!unlocked));
           candidate.setAttribute("aria-label", unlocked
             ? `Mở kỷ niệm ${candidateIndex + 1}`
             : `Mở kỷ niệm ${candidateIndex + 1} sau khi mở hoa trước`);
