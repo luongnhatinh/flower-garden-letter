@@ -907,7 +907,8 @@
     .memory-flower-trigger:disabled { cursor: default; }
     .memory-flower-trigger:disabled::after { content: none; animation: none; }
     .memory-flower-trigger:disabled svg { filter: saturate(.68) brightness(.86); }
-    .flower-item svg { display: block; width: 100%; height: 100%; overflow: visible; animation: flower-sway 6s ease-in-out 3s infinite; }
+    .flower-item svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .flower-row-6 .flower-item svg, .flower-row-7 .flower-item svg { animation: flower-sway 6s ease-in-out 3s infinite; }
     .flower-row-far { filter: blur(.45px); opacity: .84; }
     .flower-row-near { filter: drop-shadow(0 -5px 24px rgba(29, 43, 39, .24)); }
     .flower-row-foreground { filter: drop-shadow(0 -8px 22px rgba(15, 38, 34, .3)); }
@@ -1550,6 +1551,9 @@
       .letter-paper { margin-top: 20px; padding: 22px 18px 24px 34px; min-height: 440px; background-position: left top; }
       .sheet-btn { padding: 7px 14px; font-size: .82rem; }
     }
+    @media (max-width: 760px) {
+      .memory-flower-trigger[data-memory-index="3"] { left: 74%; }
+    }
     @media (max-height: 650px) {
       .flower-note-card { top: 50%; padding: 14px 18px 12px; max-height: calc(100vh - 24px); }
       .memory-bloom { width: 56px; height: 68px; margin: 0 auto 3px; }
@@ -1563,6 +1567,9 @@
       .letter-heading { margin-bottom: 8px; }
       .letter-heading h1 { font-size: clamp(1.4rem, 4.2vh, 2rem); }
       .envelope-scene { height: 185px; margin-top: 4px; }
+    }
+    @media (max-height: 650px) and (max-width: 760px) {
+      .garden-heading { top: 68px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
@@ -2110,10 +2117,10 @@
         <article class="letter-paper" id="letterPaper">
           <header class="sheet-header">
             <p class="paper-mark">Một lời nhắn từ trái tim</p>
-            <div class="sheet-pills" role="tablist" aria-label="Các trang thư">
-              <button type="button" class="sheet-pill active" data-sheet-target="1" aria-label="Trang 1" title="Trang 1" aria-selected="true">1</button>
-              <button type="button" class="sheet-pill" data-sheet-target="2" aria-label="Trang 2" title="Trang 2" aria-selected="false">2</button>
-              <button type="button" class="sheet-pill" data-sheet-target="3" aria-label="Trang 3" title="Trang 3" aria-selected="false">3</button>
+            <div class="sheet-pills" role="group" aria-label="Các trang thư">
+              <button type="button" class="sheet-pill active" data-sheet-target="1" aria-label="Trang 1" aria-current="page" title="Trang 1">1</button>
+              <button type="button" class="sheet-pill" data-sheet-target="2" aria-label="Trang 2" title="Trang 2">2</button>
+              <button type="button" class="sheet-pill" data-sheet-target="3" aria-label="Trang 3" title="Trang 3">3</button>
             </div>
           </header>
 
@@ -2163,6 +2170,7 @@
       </details>
     </div>
   </section>
+  <script src="assets/audio/lyrics-until-i-found-you.js"></script>
   <script>
     (() => {
       const memoryFlowers = [...document.querySelectorAll("[data-memory-flower]")]
@@ -2184,66 +2192,24 @@
       const letterLink = document.querySelector('.continue-link[href="#letterPage"]');
       const gardenBackLink = document.querySelector('.letter-back[href="#gardenPage"]');
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      const coverMusic = new Audio("assets/audio/until-i-found-you.mp3");
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const coverMusic = new Audio();
+      coverMusic.preload = "metadata";
+      coverMusic.src = "assets/audio/until-i-found-you.mp3";
       coverMusic.loop = true;
       coverMusic.volume = 0.45;
-      coverMusic.preload = "auto";
-      const gardenMusic = new Audio("assets/audio/pink-sweats.mp3");
+      const gardenMusic = new Audio();
+      gardenMusic.preload = "none";
+      gardenMusic.src = "assets/audio/pink-sweats.mp3";
       gardenMusic.loop = true;
       gardenMusic.volume = 0.32; // 70% so với âm thanh khác (0.45 * 0.70)
-      gardenMusic.preload = "auto";
       let gardenFadeFrame = 0;
-      gardenMusic.addEventListener("error", () => {
-        if (!gardenMusic.src.includes("Pink-Sweat-SnapYT.App.mp3")) {
-          gardenMusic.src = "Pink-Sweat-SnapYT.App.mp3";
-          gardenMusic.load();
-          if (flowerGarden?.open && !isLetterScreen() && soundEnabled) {
-            gardenMusic.play().catch(() => {});
-          }
-        }
-      });
       const letterTracks = [
         "assets/audio/gentle-love-piano-music.mp3",
         "assets/audio/love-piano-emotional.mp3",
       ];
-      let UNTIL_I_FOUND_YOU_LYRICS = [
-        { start: 12.21, end: 13.65, text: "Bé àaaaaa" },
-        { start: 15.25, end: 18.22, text: "Wrap me up in all your..." },
-        { start: 18.72, end: 24.06, text: "I want you in my arms" },
-        { start: 24.12, end: 27.36, text: "Oh, let me hold you" },
-        { start: 29.60, end: 35.03, text: "I'll never let you go again like I did" },
-        { start: 35.47, end: 38.37, text: "Oh, I used to say" },
-        { start: 39.04, end: 45.71, text: "I would never fall in love again until I found her" },
-        { start: 46.45, end: 53.09, text: "I said I would never fall unless it's you I fall into" },
-        { start: 53.79, end: 60.33, text: "I was lost within the darkness, but then I found her" },
-        { start: 60.69, end: 65.86, text: "I found you" },
-        { start: 70.27, end: 71.57, text: "Bé àaaaaa" },
-        { start: 73.24, end: 74.94, text: "Pulled me in" },
-        { start: 75.01, end: 81.98, text: "I asked to love her once again" },
-        { start: 82.05, end: 85.45, text: "You fell, I caught you" },
-        { start: 87.32, end: 92.86, text: "I'll never let you go again, oh, like I did" },
-        { start: 93.29, end: 96.50, text: "Oh, I used to say" },
-        { start: 96.86, end: 103.57, text: "I would never fall in love again until I found her" },
-        { start: 104.07, end: 110.88, text: "I said I would never fall unless it's you I fall into" },
-        { start: 111.28, end: 118.15, text: "I was lost within the darkness, but then I found her" },
-        { start: 118.22, end: 123.29, text: "I found you" },
-        { start: 139.44, end: 145.91, text: "I would never fall in love again until I found her" },
-        { start: 146.28, end: 153.02, text: "I said I would never fall unless it's you I fall into" },
-        { start: 153.42, end: 160.09, text: "I was lost within the darkness, but then I found her" },
-        { start: 160.19, end: 165.33, text: "I found you" }
-      ];
-
-      // Tự động nạp dữ liệu từ file JSON nếu môi trường hỗ trợ fetch (Local server / Web)
-      try {
-        fetch("assets/audio/lyrics-until-i-found-you.json")
-          .then((res) => res.json())
-          .then((data) => {
-            if (Array.isArray(data) && data.length > 0) {
-              UNTIL_I_FOUND_YOU_LYRICS = data;
-            }
-          })
-          .catch(() => { /* Mở offline file:/// sẽ dùng danh sách mặc định ở trên */ });
-      } catch (err) { /* fallback */ }
+      const UNTIL_I_FOUND_YOU_LYRICS = Array.isArray(window.UNTIL_I_FOUND_YOU_LYRICS)
+        ? window.UNTIL_I_FOUND_YOU_LYRICS : [];
 
       const soundEnabled = true;
       let audioContext;
@@ -2326,6 +2292,15 @@
 
         coverLyrics.classList.toggle("is-paused", coverMusic.paused);
         const time = coverMusic.currentTime;
+
+        if (!UNTIL_I_FOUND_YOU_LYRICS.length) {
+          if (lastRenderedText !== "__music_only__") {
+            lyricsFillText.textContent = "Đang phát nhạc ♫";
+            lyricsFillText.style.setProperty("--fill", "100%");
+            lastRenderedText = "__music_only__";
+          }
+          return;
+        }
 
         // Khi bài hát đang phát: hiển thị tên bài hát
         if (lyricsTrackName && !coverMusic.paused && lyricsTrackName.textContent !== "Until I Found You · Stephen Sanchez") {
@@ -2970,7 +2945,7 @@
           part.classList.toggle("is-visible", isShown);
           if (isShown && idx === currentStep - 1 && playSound) {
             try {
-              part.scrollIntoView({ behavior: "smooth", block: "nearest" });
+              part.scrollIntoView({ behavior: prefersReducedMotion.matches ? "auto" : "smooth", block: "nearest" });
             } catch (err) {}
           }
         });
@@ -2980,6 +2955,7 @@
         });
 
         const isLast = currentStep >= total;
+        const stepButtonHadFocus = stepBtn?.contains(document.activeElement);
         if (stepBtn) {
           if (isLast) {
             stepBtn.style.display = "none";
@@ -2996,6 +2972,9 @@
               text.textContent = (currentStep === total - 1) ? "Chạm để xem phần cuối nè" : "Chạm vào đây để đọc tiếp nha";
             }
           }
+        }
+        if (isLast && stepButtonHadFocus) {
+          card.querySelector("[data-close-flower-note]")?.focus({ preventScroll: true });
         }
         if (guideTip) {
           if (isLast) {
@@ -3126,10 +3105,11 @@
         sheetPills.forEach(pill => {
           const isTarget = Number(pill.dataset.sheetTarget) === targetPage;
           pill.classList.toggle("active", isTarget);
-          pill.setAttribute("aria-selected", isTarget ? "true" : "false");
+          if (isTarget) pill.setAttribute("aria-current", "page");
+          else pill.removeAttribute("aria-current");
         });
         if (playSound) playChime();
-        letterPaper?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        letterPaper?.scrollIntoView({ behavior: prefersReducedMotion.matches ? "auto" : "smooth", block: "nearest" });
       }
 
       document.querySelectorAll("[data-sheet-goto]").forEach(btn => {
